@@ -1,11 +1,10 @@
 module.exports = {
-    validateCollegeCode: (req, res, next) => {
-      console.log('Request Body:', req.body); // Log the request body for debugging
-  
-      if (!req.body || !req.body.college_code ) {
-        return res.status(400).json({ error: 'college_code is missing in the request body' });
-      }
-      next();
+  validateCollegeCode: (req, res, next) => {
+    console.log('Request Query:', req.query); // Logging query parameters instead of body for debugging
+
+    if (!req.query || !req.query.college_code) {
+      return res.status(400).json({ error: 'collegeCode is missing in the request body' });
     }
-  };
-  
+    next();
+  }
+};
