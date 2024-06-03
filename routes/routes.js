@@ -16,7 +16,7 @@ const { subjects, dashboard } = require('../controllers/subdash'); // Import oth
 router.post('/check', validateCollegeCode, setupDatabaseConnection, checkCollege, closeDatabaseConnection);
 const { submitHomework } = require('../controllers/submithomework');  
 // Endpoint for student login
-router.post('/student', validateCollegeCode, setupDatabaseConnection, loginStudent, closeDatabaseConnection);
+router.post('/login', validateCollegeCode, setupDatabaseConnection, loginStudent, closeDatabaseConnection);
 
 // Endpoint for homework pending
 router.get('/homework_pending', validateCollegeCode, setupDatabaseConnection, (req, res, next) => {
