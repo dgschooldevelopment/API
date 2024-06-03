@@ -1,16 +1,16 @@
 const { collegesPool } = require('../config/dbconfig');
 
 const checkCollege = async (req, res) => {
-    const { college_code } = req.body;
+    const { collegeCode } = req.body;
 
-    if (! college_code) {
+    if (!collegeCode) {
         return res.status(400).json({ error: 'collegeCode is a required parameter' });
     }
 
     const sql = `SELECT * FROM College WHERE college_code = ?`;
 
     try {
-        const [results] = await collegesPool.query(sql, [ college_code]);
+        const [results] = await collegesPool.query(sql, [collegeCode]);
 
         if (results.length === 0) {
             return res.status(404).json({ error: 'College code not found' });
