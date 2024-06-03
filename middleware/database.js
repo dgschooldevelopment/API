@@ -2,15 +2,15 @@ const mysql = require('mysql2/promise');
 const { collegesPool } = require('../config/dbconfig');
 
 const setupDatabaseConnection = async (req, res, next) => {
-    const { collegeCode } = req.body;
+    const {college_code  } = req.body;
 
-    if (!collegeCode) {
+    if (!college_code ) {
         return res.status(400).json({ error: 'collegeCode is a required parameter' });
     }
 
     try {
         const collegeSql = `SELECT college_code FROM College WHERE college_code = ?`;
-        const [collegeResults] = await collegesPool.query(collegeSql, [collegeCode]);
+        const [collegeResults] = await collegesPool.query(collegeSql, [college_code ]);
 
         if (collegeResults.length === 0) {
             return res.status(404).json({ error: 'College code not found' });
