@@ -53,7 +53,9 @@ const loginStudent = async (req, res) => {
 module.exports = {
     loginStudent
 };*/
-const { collegesPool } = require('../config/dbconfig');
+
+            
+  const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
     const { studentId, password } = req.body;
@@ -78,14 +80,14 @@ const loginStudent = async (req, res) => {
              
         
             FROM 
-               MGVP.Student s
+             Student s
                 JOIN 
-                colleges.College c ON s.college_id = c.CollegeID
+                ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
                 s.studentid = ?
         `;
 
-        const [studentResults] = await collegesPool.query(studentSql, [studentId]);
+        const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
 
         if (studentResults.length === 0) {
             return res.status(404).json({ error: 'Student not found' });
@@ -114,4 +116,5 @@ const loginStudent = async (req, res) => {
 module.exports = {
     loginStudent
 };
+
 
