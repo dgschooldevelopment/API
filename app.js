@@ -6,10 +6,11 @@ const bodyParser = require('body-parser');
 const app = express();
 dotenv.config();
 
-app.use(express.json());
+
 app.use(cors());
-app.use(express.json({ limit: '250mb' }));
-app.use(bodyParser.urlencoded({ limit: '250mb', extended: true }));
+app.use(express.json({ limit: '300mb' }));
+app.use(bodyParser.json({ limit: '300mb' })); // Increase limit for JSON request body
+app.use(bodyParser.urlencoded({ limit: '300mb', extended: true }));
  // Ensure express can parse JSON bodies
 app.use('/', routes);
 
