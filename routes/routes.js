@@ -13,7 +13,7 @@ const { Chapters, ChapterContent } = require('../controllers/chapters');  // Imp
 const { subjects, dashboard } = require('../controllers/subdash'); // Import other controllers here
 const { profile } = require('../controllers/profile'); // Import other controllers here
 // Endpoint to check the college code
-router.post('/check', validateCollegeCode, setupDatabaseConnection, checkCollege, closeDatabaseConnection);
+router.post('/check', checkCollege);
 const { submitHomework } = require('../controllers/submithomework');  
 // Endpoint for student login
 router.post('/login', validateCollegeCode, setupDatabaseConnection , loginStudent,closeDatabaseConnection);
