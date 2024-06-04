@@ -17,10 +17,7 @@ router.post('/check', validateCollegeCode, setupDatabaseConnection, checkCollege
 const { submitHomework } = require('../controllers/submithomework');  
 // Endpoint for student login
 router.post('/login', validateCollegeCode, setupDatabaseConnection , loginStudent,closeDatabaseConnection);
-<<<<<<< HEAD
-=======
 
->>>>>>> 82b540a284e57bb3cc1f76ee027d112477680c8c
 // Endpoint for homework pending
 router.get('/homework_pending', validateCollegeCode, setupDatabaseConnection, (req, res, next) => {
     homeworkpending(req, res, next);
