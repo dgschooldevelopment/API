@@ -1,7 +1,7 @@
 /*const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
-    const { studentId, password } = req.body;
+    const { studentId, password } = req.query;
 
     if (!studentId || !password) {
         return res.status(400).json({ error: 'studentId and password are required parameters' });
