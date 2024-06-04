@@ -18,9 +18,14 @@ const loginStudent = async (req, res) => {
                 s.stud_dob, 
                 s.mobile, 
                 s.password, 
-                TO_BASE64(s.profile_img) AS profile_img
+                c.college_code,
+                s.profile_img 
+             
+        
             FROM 
-                Student s
+             Student s
+                JOIN 
+                ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
                 s.studentid = ?
         `;
@@ -37,7 +42,11 @@ const loginStudent = async (req, res) => {
             return res.status(401).json({ error: 'Invalid password' });
         }
 
-        const base64ProfileImg = student.profile_img ? student.profile_img : null;
+        let base64ProfileImg = null;
+        if (student.profile_img) {
+            base64ProfileImg = student.profile_img.toString('base64').replace(/\n/g, '');
+        }
+     
         const studentData = { ...student, profile_img: base64ProfileImg };
 
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: studentData });
@@ -50,3 +59,4 @@ const loginStudent = async (req, res) => {
 module.exports = {
     loginStudent
 };
+
