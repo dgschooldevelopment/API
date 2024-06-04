@@ -114,7 +114,6 @@ const loginStudent = async (req, res) => {
         if (student.profile_img) {
             base64ProfileImg = student.profile_img.toString('base64').replace(/\n/g, '');
         }
->>>>>>> 82b540a284e57bb3cc1f76ee027d112477680c8c
      
         const studentData = { ...student, profile_img: base64ProfileImg };
 
@@ -129,7 +128,3 @@ module.exports = {
     loginStudent
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 82b540a284e57bb3cc1f76ee027d112477680c8c
