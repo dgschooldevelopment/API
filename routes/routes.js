@@ -16,7 +16,7 @@ const { profile } = require('../controllers/profile'); // Import other controlle
 router.post('/check', checkCollege);
 const { submitHomework } = require('../controllers/submithomework');  
 // Endpoint for student login
-router.post('/login', validateCollegeCode);
+router.post('/login', validateCollegeCode, setupDatabaseConnection , loginStudent,closeDatabaseConnection);
 
 // Endpoint for homework pending
 router.get('/homework_pending', validateCollegeCode, setupDatabaseConnection, (req, res, next) => {
