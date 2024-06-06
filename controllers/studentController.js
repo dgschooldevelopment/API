@@ -1,6 +1,6 @@
-<<<<<<< HEAD
+
            
-  const { collegesPool } = require('../config/dbconfig');
+ /* const { collegesPool } = require('../config/dbconfig');
 
   const loginStudent = async (req, res) => {
       const { studentId, password } = req.body;
@@ -61,7 +61,7 @@
   module.exports = {
       loginStudent
   };
-=======
+=======*/
 /*const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
@@ -192,4 +192,3 @@ module.exports = {
     loginStudent
 };
 
->>>>>>> b718d5b17207077832f053fc6d902cec4a174425
