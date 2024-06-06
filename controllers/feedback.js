@@ -15,7 +15,7 @@ const feedback = async (req, res, next) => {
         await req.collegePool.query(sql, values);
 
         console.log('Feedback inserted successfully');
-        res.status(201).json({ success: true, message: 'Feedback added successfully' });
+        res.status(200).json({ success: true, message: 'Feedback added successfully' });
     } catch (err) {
         console.error('Error inserting feedback:', err);
         res.status(500).json({ success: false, error: 'Failed to insert feedback' });
