@@ -3,13 +3,15 @@ const { closeDatabaseConnection } = require('../middleware/database');
 
 // Function to get total pending assignments subject-wise
 const getTotalPendingAssignments = async (pool, standard, division) => {
-    // Query to get total pending assignments
     const query = `
         SELECT 
             p.subject_id,
+            s.subject_name,
             COUNT(*) AS total_pending
         FROM 
             homework_pending p
+        JOIN
+              ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
         WHERE 
             p.standred = ?
             AND p.division = ?
@@ -22,21 +24,23 @@ const getTotalPendingAssignments = async (pool, standard, division) => {
 
 // Function to get total submitted assignments subject-wise
 const getTotalSubmittedAssignments = async (pool, student_id, standard, division) => {
-    // Query to get total submitted assignments
     const query = `
         SELECT 
             p.subject_id,
+            s.subject_name,
             COUNT(*) AS total_submitted
         FROM 
-            homework_submitted s
+            homework_submitted hs
         JOIN 
-            homework_pending p ON s.homeworkpending_id = p.homeworkp_id
+            homework_pending p ON hs.homeworkpending_id = p.homeworkp_id
+        JOIN
+              ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
         WHERE 
-            s.student_id = ?
+            hs.student_id = ?
             AND p.standred = ?
             AND p.division = ?
         GROUP BY
-            p.subject_id;
+            p.subject_id, s.subject_name;
     `;
     const [results] = await pool.query(query, [student_id, standard, division]);
     return results;
@@ -65,7 +69,8 @@ const Assignment = async (req, res) => {
             const submitted = submittedResults.find(s => s.subject_id === pending.subject_id) || { total_submitted: 0 };
 
             return {
-                subject_id: pending.subject_id,
+        
+                subject_name: pending.subject_name,
                 total_pending: pending.total_pending,
                 total_submitted: submitted.total_submitted
             };
