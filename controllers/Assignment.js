@@ -11,7 +11,7 @@ const getTotalPendingAssignments = async (pool, standard, division) => {
         FROM 
             homework_pending p
         JOIN
-            ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
+   
         WHERE 
             p.standred = ?
             AND p.division = ?
@@ -34,8 +34,6 @@ const getTotalSubmittedAssignments = async (pool, student_id, standard, division
         JOIN 
             homework_pending p ON hs.homeworkpending_id = p.homeworkp_id
         JOIN
-            ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
-        WHERE 
             hs.student_id = ?
             AND p.standred = ?
             AND p.division = ?
