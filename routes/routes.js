@@ -11,16 +11,16 @@ const { evolutionhomework } = require('../controllers/evolutionhomework');
 const { feedback } = require('../controllers/feedback');  // Ensure this is imported
 const { Chapters, ChapterContent } = require('../controllers/chapters');  // Import new controllers
 const { subjects, dashboard } = require('../controllers/subdash'); // Import other controllers here
-const { profile } = require('../controllers/profile'); // Import other controllers here
-// Endpoint to check the college code
-router.post('/check', validateCollegeCode, setupDatabaseConnection, checkCollege, closeDatabaseConnection);
+const { profile } = require('../controllers/profile');
+const { unittest } = require('../controllers/unittest');
+const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');  
+  // Import other controllers here
+// Endpoint to check the college code
+router.post('/check',checkCollege);
+  
 // Endpoint for student login
 router.post('/login', validateCollegeCode, setupDatabaseConnection , loginStudent,closeDatabaseConnection);
-<<<<<<< HEAD
-=======
-
->>>>>>> 82b540a284e57bb3cc1f76ee027d112477680c8c
 // Endpoint for homework pending
 router.get('/homework_pending', validateCollegeCode, setupDatabaseConnection, (req, res, next) => {
     homeworkpending(req, res, next);
@@ -43,5 +43,11 @@ router.get('/subjects', subjects);
 // Endpoint for dashboard
 router.get('/dashboard',  dashboard);
 // endpoint for profile
+
 router.get('/profile', validateCollegeCode, setupDatabaseConnection, profile, closeDatabaseConnection);
- module.exports = router;
+ // for add new unit test table
+
+router.post('/unittest',setupDatabaseConnection,unittest,closeDatabaseConnection,validateCollegeCode,);
+router.get('/report',validateCollegeCode,setupDatabaseConnection,report,closeDatabaseConnection);
+
+module.exports = router;
