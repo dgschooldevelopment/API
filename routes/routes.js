@@ -11,9 +11,15 @@ const { evolutionhomework } = require('../controllers/evolutionhomework');
 const { feedback } = require('../controllers/feedback');  // Ensure this is imported
 const { Chapters, ChapterContent } = require('../controllers/chapters');  // Import new controllers
 const { subjects, dashboard } = require('../controllers/subdash'); // Import other controllers here
+<<<<<<< HEAD
 const { profile } = require('../controllers/profile');
 const { unittest } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
+=======
+const { profile } = require('../controllers/profile'); // Import other controllers here
+// Endpoint to check the college code
+router.post('/check', checkCollege);
+>>>>>>> b718d5b17207077832f053fc6d902cec4a174425
 const { submitHomework } = require('../controllers/submithomework');  
   // Import other controllers here
 // Endpoint to check the college code
@@ -21,6 +27,10 @@ router.post('/check',checkCollege);
   
 // Endpoint for student login
 router.post('/login', validateCollegeCode, setupDatabaseConnection , loginStudent,closeDatabaseConnection);
+<<<<<<< HEAD
+=======
+
+>>>>>>> b718d5b17207077832f053fc6d902cec4a174425
 // Endpoint for homework pending
 router.get('/homework_pending', validateCollegeCode, setupDatabaseConnection, (req, res, next) => {
     homeworkpending(req, res, next);
