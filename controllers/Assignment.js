@@ -11,7 +11,7 @@ const getTotalPendingAssignments = async (pool, standard, division) => {
         FROM 
             homework_pending p
         JOIN
-              ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
+            ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
         WHERE 
             p.standred = ?
             AND p.division = ?
@@ -34,7 +34,7 @@ const getTotalSubmittedAssignments = async (pool, student_id, standard, division
         JOIN 
             homework_pending p ON hs.homeworkpending_id = p.homeworkp_id
         JOIN
-              ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
+            ${process.env.DB_NAME}.Subject s ON p.subject_id = s.subject_code_prefixed
         WHERE 
             hs.student_id = ?
             AND p.standred = ?
@@ -69,15 +69,24 @@ const Assignment = async (req, res) => {
             const submitted = submittedResults.find(s => s.subject_id === pending.subject_id) || { total_submitted: 0 };
 
             return {
-        
                 subject_name: pending.subject_name,
                 total_pending: pending.total_pending,
                 total_submitted: submitted.total_submitted
             };
         });
 
-        // Send the combined assignment data as JSON response
-        res.json(combinedResults);
+        // Calculate total pending assignments for all subjects
+        const totalPending = combinedResults.reduce((total, assignment) => total + assignment.total_pending, 0);
+
+        // Calculate total submitted assignments for all subjects
+        const totalSubmitted = combinedResults.reduce((total, assignment) => total + assignment.total_submitted, 0);
+
+        // Send the combined assignment data along with total pending and total submitted assignments
+        res.json({
+            assignments: combinedResults,
+            total_pending: totalPending,
+            total_submitted: totalSubmitted
+        });
     } catch (error) {
         console.error('Error fetching assignments:', error);
         res.status(500).json({ error: 'Internal server error' });
