@@ -15,6 +15,7 @@ const { unittest } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
+const { Attendence } = require('../controllers/attendence'); // Ensure Assignment controller is properly defined
 
 // Endpoint to check the college code
 router.post('/check', checkCollege);
@@ -60,4 +61,6 @@ router.get('/report', validateCollegeCode, setupDatabaseConnection, report, clos
 
 // Endpoint for assignment
 router.get('/assignment', validateCollegeCode, setupDatabaseConnection, Assignment, closeDatabaseConnection);
+//endpoint for attendence
+
 module.exports = router;
