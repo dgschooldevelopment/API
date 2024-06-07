@@ -1,6 +1,6 @@
 const { closeDatabaseConnection } = require('../middleware/database');
 
-const evolutionhomework = async (req, res,next) => {
+const evolutionhomework = async (req, res, next) => {
     const { subject_name, standred, division, student_id } = req.query;
 
     // Log received query parameters for debugging
@@ -19,23 +19,21 @@ const evolutionhomework = async (req, res,next) => {
             SELECT COUNT(*) AS total_homework
             FROM homework_pending hp
             JOIN ${process.env.DB_NAME}.Subject s ON hp.subject_id = s.subject_code_prefixed
-            WHERE s.subject_name = ? AND hp.standred = ? AND hp.Division = ?
+            WHERE s.subject_name = ? AND hp.standred = ? AND hp.division = ?
         `,
         approvedHomework: `
             SELECT COUNT(*) as count
-            FROM MGVP.homework_submitted hs
+            FROM homework_submitted hs
             JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
             JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            JOIN Student st ON hs.student_id = st.student_id -- Join with Students table to get student name
-            WHERE hs.student_id = ? AND hs.approval_status = 1
+            WHERE hs.student_id = ? AND s.subject_name = ? AND hs.approval_status = 1
         `,
         pendingHomework: `
             SELECT COUNT(*) as count
-            FROM MGVP.homework_submitted hs
+            FROM homework_submitted hs
             JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
             JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            JOIN Student st ON hs.student_id = st.student_id -- Join with Students table to get student name
-            WHERE hs.student_id = ? AND hs.approval_status = 0
+            WHERE hs.student_id = ? AND s.subject_name = ? AND hs.approval_status = 0
         `,
         studentName: `
             SELECT Name
@@ -46,8 +44,8 @@ const evolutionhomework = async (req, res,next) => {
 
     const params = {
         totalHomework: [subject_name, standredValue, division],
-        approvedHomework: [student_id],
-        pendingHomework: [student_id],
+        approvedHomework: [student_id, subject_name],
+        pendingHomework: [student_id, subject_name],
         studentName: [student_id]
     };
 
@@ -80,7 +78,7 @@ const evolutionhomework = async (req, res,next) => {
         console.error('Database query failed:', error);
         res.status(500).json({ error: 'Database query failed' });
     } finally {
-        await closeDatabaseConnection(req);
+        await closeDatabaseConnection(req, res);
     }
 };
 
