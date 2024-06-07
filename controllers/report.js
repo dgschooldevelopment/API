@@ -91,8 +91,19 @@ const report = async (req, res) => {
         const totalSubjects = subjects.length;
         const percentageFields = subjects.map(subject => `(SUM(${subject}) / (COUNT(unit_test_id) * 100)) * 100 AS ${subject}`).join(', ');
 
+        // Add overall percentage calculation
+        const overallPercentage = `(${subjects.map(subject => `SUM(${subject})`).join(' + ')} / (COUNT(unit_test_id) * ${totalSubjects} * 100)) * 100 AS overall_percentage`;
+
+        // Final dynamic SQL query
         const dynamicQuery = `
-         
+            SELECT ${percentageFields}, ${overallPercentage}
+            FROM ${tableName}
+            WHERE student_id = ?
+            GROUP BY student_id
+        `;
+
+        // Execute the dynamic query
+        const [results] = await req.collegePool.query(dynamicQuery, [student_id]);
 
         if (results.length > 0) {
             const result = results[0];
@@ -107,6 +118,10 @@ const report = async (req, res) => {
                 percentage: parseFloat(result.overall_percentage).toFixed(2)
             });
 
+            return res.status(200).json(response);
+        } else {
+            return res.status(404).send('Student not found');
+        }
     } catch (err) {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
@@ -116,4 +131,3 @@ const report = async (req, res) => {
 module.exports = {
     report
 };
-
