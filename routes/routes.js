@@ -76,8 +76,8 @@ router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teach
 router.get('/teacher_dashboard', teacherDashboard);
 router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile, closeDatabaseConnection );
 router.get('/teacher_classlist', validateCollegeCode, setupDatabaseConnection, teacher_classList, closeDatabaseConnection );
-router.get('/chapter_points',chapterPoints)
-router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection, DailyUpdates,closeDatabaseConnection  )   
+router.get('/chapter_points',chapterPoints);
+router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection, DailyUpdates ,closeDatabaseConnection  )  ; 
 
 
 module.exports = router;
