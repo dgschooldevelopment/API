@@ -20,6 +20,7 @@ const { teacherLogin } = require('../controllers/teacherLogin');
 const { teacherDashboard } = require('../controllers/teacher_dashboard');
 const { teacherProfile } = require('../controllers/teacherProfile');
 const { teacher_classList } = require('../controllers/teacher_classList');
+const { chapterPoints } = require('../controllers/chapter_points');
 
 // Endpoint to check the college code
 router.post('/check', checkCollege);
@@ -73,6 +74,7 @@ router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teach
 router.get('/teacher_dashboard', teacherDashboard);
 router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile, closeDatabaseConnection );
 router.get('/teacher_classlist', validateCollegeCode, setupDatabaseConnection, teacher_classList, closeDatabaseConnection );
+router.get('/chapter_points',chapterPoints)
 
 
 module.exports = router;
