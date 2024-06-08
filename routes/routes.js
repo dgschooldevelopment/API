@@ -16,6 +16,8 @@ const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
 const { Attendence } = require('../controllers/attendence'); // Ensure Assignment controller is properly defined
+const { teacherLogin } = require('../controllers/teacherLogin');
+const { teacherDashboard } = require('../controllers/teacher_dashboard');
 
 // Endpoint to check the college code
 router.post('/check', checkCollege);
@@ -62,5 +64,11 @@ router.get('/report', validateCollegeCode, setupDatabaseConnection, report, clos
 // Endpoint for assignment
 router.get('/assignment', validateCollegeCode, setupDatabaseConnection, Assignment, closeDatabaseConnection);
 //endpoint for attendence
+
+// teacherAPI Endpoints
+
+router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin,closeDatabaseConnection );
+router.get('/teacher_dashboard', teacherDashboard);
+
 
 module.exports = router;
