@@ -2,7 +2,7 @@ const teacher_classList = async (req, res) => {
     const { teacher_code } = req.query;
     try {
         const classListQuery = `
-            SELECT stand, division 
+            SELECT stand, division, subject_name
             FROM ${process.env.DB_NAME}.Subject s
             JOIN subject_teacher st ON s.subject_code_prefixed = st.subject_code
             WHERE st.teacher_code =?
