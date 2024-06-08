@@ -10,7 +10,7 @@ const chapterPoints = async (req, res) => {
     try {
         // Fetch chapters based on subject_code_prefixed
         const [chapters] = await syllabusPool.query(
-            'SELECT chapter_id, chapter_name FROM chapter WHERE subject_code_prefixed = ?', 
+            'SELECT chapter_id, chapter_name FROM chapter WHERE subject_code_prefixed =?', 
             [subject_code_prefixed]
         );
         // Fetch points that belong to the fetched chapters
@@ -26,6 +26,7 @@ const chapterPoints = async (req, res) => {
         // Map points to their corresponding chapters
         const chapterMap = chapters.reduce((map, chapter) => {
             map[chapter.chapter_id] = {
+                chapter_id: chapter.chapter_id,
                 chapter_name: chapter.chapter_name,
                 points: []
             };
