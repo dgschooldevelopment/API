@@ -8,11 +8,11 @@ const teacherLogin= async (req, res) => {
     try {
 
         const teacherQuery=`SELECT 
-        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education, t.college_code
+        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education 
     FROM 
         teacher t
         JOIN 
-        colleges.College c ON t.college_code= c.college_code
+        ${process.env.DB_NAME}.College c ON t.college_code= c.college_code
     WHERE 
         t.teacher_code = ?` 
     ;
@@ -20,8 +20,8 @@ const teacherLogin= async (req, res) => {
 
     const subjectList = `
     SELECT s.subject_name
-    FROM colleges.Subject s
-    JOIN MGVP.subject_teacher st ON s.subject_code_prefixed = st.subject_code
+    FROM ${process.env.DB_NAME}.Subject s
+    JOIN subject_teacher st ON s.subject_code_prefixed = st.subject_code
     WHERE st.teacher_code = ?
 `;
         const [teacherDetails] = await req.collegePool.query(teacherQuery,[teacher_code]);
