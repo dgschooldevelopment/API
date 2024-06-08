@@ -69,6 +69,7 @@ router.get('/assignment', validateCollegeCode, setupDatabaseConnection, Assignme
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin,closeDatabaseConnection );
 router.get('/teacher_dashboard', teacherDashboard);
+router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile,closeDatabaseConnection );
 
 
 module.exports = router;
