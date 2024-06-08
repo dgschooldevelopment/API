@@ -6,6 +6,8 @@ const collegesPool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    connectTimeout: 10000 
+
 });
 
 const syllabusPool = mysql.createPool({
@@ -13,6 +15,8 @@ const syllabusPool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.SYLLABUS_DB_NAME,
+    connectTimeout: 10000 
+
 });
 
 module.exports = {
