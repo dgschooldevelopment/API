@@ -26,7 +26,26 @@ const DailyUpdates= async (req, res) => {
 
 const getTeacherDailyUpdate=async (req, res) => {
     try {
-        const [rows] = await req.collegePool.query('SELECT * FROM Teacher_dailyUpdate');
+        const query = `
+            SELECT 
+                tdu.update_id,
+                tdu.stand,
+                tdu.division,
+                tdu.subject_code_prefixed,
+                tdu.chapter_id,
+                c.chapter_name,
+                tdu.point_id,
+                p.point_name,
+                tdu.date,
+                tdu.time
+            FROM 
+                Teacher_dailyUpdate tdu
+            JOIN 
+                syallabus.chapter c ON tdu.chapter_id = c.chapter_id
+            JOIN 
+                syallabus.Points p ON tdu.point_id = p.point_id;
+        `;
+        const [rows] = await req.collegePool.query(query);
 
         res.json(rows);
     } catch (error) {
