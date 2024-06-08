@@ -8,7 +8,7 @@ const teacherLogin= async (req, res) => {
     try {
 
         const teacherQuery=`SELECT 
-        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education, college_code
+        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education
     FROM 
         teacher t
         JOIN 
