@@ -1,10 +1,5 @@
 const teacherProfile= async (req, res) => {
-    const { teacher_code } = req.body;
-
-    if (!teacher_code) {
-        return res.status(400).json({ error: 'teacher_code required' });
-    }
-
+    
     try {
 
         const teacherQuery=`SELECT 
@@ -14,7 +9,7 @@ const teacherProfile= async (req, res) => {
         JOIN 
         colleges.College c ON t.college_code= c.college_code
     WHERE 
-        t.teacher_code = ?` 
+        t.teacher_code = ? AND t.college_code=?` 
     ;
     
 
