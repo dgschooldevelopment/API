@@ -18,6 +18,7 @@ const { Assignment } = require('../controllers/Assignment'); // Ensure Assignmen
 const { Attendence } = require('../controllers/attendence'); // Ensure Assignment controller is properly defined
 const { teacherLogin } = require('../controllers/teacherLogin');
 const { teacherDashboard } = require('../controllers/teacher_dashboard');
+const { teacherProfile } = require('../controllers/teacherProfile');
 
 // Endpoint to check the college code
 router.post('/check', checkCollege);
@@ -69,7 +70,7 @@ router.get('/assignment', validateCollegeCode, setupDatabaseConnection, Assignme
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin,closeDatabaseConnection );
 router.get('/teacher_dashboard', teacherDashboard);
-router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile,closeDatabaseConnection );
+router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile, closeDatabaseConnection );
 
 
 module.exports = router;
