@@ -24,6 +24,19 @@ const DailyUpdates= async (req, res) => {
     }
 };
 
+const getTeacherDailyUpdate=async (req, res) => {
+    try {
+        const [rows] = await req.collegePool.query('SELECT * FROM Teacher_dailyUpdate');
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ success: false, message: 'Error fetching data.' });
+    }
+};
+
+
 module.exports = {
-    DailyUpdates
+    DailyUpdates,
+    getTeacherDailyUpdate
 };
