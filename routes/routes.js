@@ -80,7 +80,7 @@ router.get('/teacher_classlist', validateCollegeCode, setupDatabaseConnection, t
 router.get('/chapter_points',chapterPoints);
 router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection, DailyUpdates,closeDatabaseConnection  );  
 router.get('/get_teacher_dailyupdate',validateCollegeCode, setupDatabaseConnection, getTeacherDailyUpdate,closeDatabaseConnection );
-router.get('/student', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
+router.get('/students', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
 
 
 
