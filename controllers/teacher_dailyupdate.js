@@ -58,7 +58,7 @@ LEFT JOIN
 WHERE 
     t.teacher_code = ?
 GROUP BY 
-    t.update_id,[teacher_code];
+    t.update_id;
 
       `;
       const [rows] = await req.collegePool.query(query, [teacher_code]);
