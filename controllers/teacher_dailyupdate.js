@@ -40,6 +40,7 @@ const DailyUpdates= async (req, res) => {
 
 
 const getTeacherDailyUpdate=async (req, res) => {
+    const { teacher_code}=req.query;
   try {
       const query = `
          SELECT 
@@ -55,12 +56,12 @@ LEFT JOIN
 LEFT JOIN 
     syallabus.Points p ON dup.point_id = p.point_id
 WHERE 
-    t.teacher_code = 'T1'
+    t.teacher_code = ?
 GROUP BY 
-    t.update_id;
+    t.update_id,[teacher_code];
 
       `;
-      const [rows] = await req.collegePool.query(query, [req.body.teacher_code]);
+      const [rows] = await req.collegePool.query(query, [teacher_code]);
 
       res.json(rows);
   } catch (error) {
