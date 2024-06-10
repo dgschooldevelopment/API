@@ -51,7 +51,7 @@ const insertAttendance = async (req, res) => {
     }
 };
 
-const moment = require('moment');
+/*const moment = require('moment');
 
 const fetchStudentAttendance = async (req, res) => {
     try {
@@ -130,8 +130,84 @@ const fetchStudentAttendance = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+*/
+const fetchStudentAttendance = async (req, res) => {
+    try {
+        const { student_id } = req.query;
 
+        if (!student_id) {
+            return res.status(400).json({ error: 'Missing student_id parameter' });
+        }
 
+        // Construct the SQL query to fetch attendance data for the specified student
+        const fetchAttendanceQuery = `
+            SELECT a.*, ar.date AS reason_date, ar.reason
+            FROM attendance_2024_3 AS a
+            LEFT JOIN addreason AS ar ON a.id = ar.attendance_id
+            WHERE a.student_id = ?;
+        `;
+
+        // Execute the query
+        const [rows] = await req.collegePool.query(fetchAttendanceQuery, [student_id]);
+
+        // Initialize an object to store attendance data
+        const attendanceData = {};
+
+        // Iterate through each row of the fetched data
+        rows.forEach(row => {
+            // Check if the student_id key exists in the attendanceData object, if not, initialize it
+            if (!attendanceData[row.student_id]) {
+                attendanceData[row.student_id] = [];
+            }
+
+            // Iterate through each column of the current row
+            for (const [key, value] of Object.entries(row)) {
+                // Check if the column represents a date and status and if the value is not null
+                if (key !== 'id' && key !== 'student_id' && key !== 'teacher_id' && key !== 'reason' && key !== 'reason_date' && value !== null) {
+                    // Initialize the date object if it doesn't exist
+                    let dateRecord = attendanceData[row.student_id].find(record => record.date === key);
+                    if (!dateRecord) {
+                        dateRecord = { date: key, status: value };
+                        attendanceData[row.student_id].push(dateRecord);
+                    } else {
+                        dateRecord.status = value;
+                    }
+                }
+            }
+
+            // Include the reason from addreason table
+            if (row.reason && row.reason_date) {
+                const formattedDate = moment(row.reason_date).format('YYYY-MM-DD'); // Format the reason date using Moment.js
+                let dateRecord = attendanceData[row.student_id].find(record => record.date === formattedDate);
+                if (!dateRecord) {
+                    dateRecord = { date: formattedDate, status: null, reasons: [row.reason] };
+                    attendanceData[row.student_id].push(dateRecord);
+                } else {
+                    if (!dateRecord.reasons) {
+                        dateRecord.reasons = [];
+                    }
+                    dateRecord.reasons.push(row.reason);
+                }
+            }
+        });
+
+        // Filter out records with empty reasons
+        Object.keys(attendanceData).forEach(studentId => {
+            attendanceData[studentId] = attendanceData[studentId].map(record => {
+                if (record.reasons && record.reasons.length === 0) {
+                    delete record.reasons;
+                }
+                return record;
+            });
+        });
+
+        // Send the formatted output as the response
+        return res.status(200).json(attendanceData);
+    } catch (err) {
+        console.error('Error occurred:', err);
+        return res.status(500).send('Internal server error');
+    }
+};
 
 
 module.exports = { insertAttendance, fetchStudentAttendance };
