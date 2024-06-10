@@ -6,7 +6,13 @@ const collegesPool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+<<<<<<< HEAD
+    waitForConnections: true,
+    connectionLimit: 10, // Adjust this number based on your needs
+    queueLimit: 0
+=======
     connectTimeout: 10000 
+>>>>>>> 187ed976201be290fd2d12dc102357e13a08a665
 
 });
 
