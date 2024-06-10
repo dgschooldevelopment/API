@@ -23,6 +23,10 @@ const setupDatabaseConnection = async (req, res, next) => {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: dbName,
+      waitForConnections: true,
+      connectionLimit: 10, // Adjust this number based on your needs
+      queueLimit: 0
+
     });
 
     next();
