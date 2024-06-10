@@ -131,21 +131,24 @@ const fetchStudentAttendance = async (req, res) => {
     }
 };
 */
+const moment = require('moment');
+
 const fetchStudentAttendance = async (req, res) => {
     try {
-        const { student_id } = req.query;
+        const { student_id, year, month } = req.query;
 
-        if (!student_id) {
-            return res.status(400).json({ error: 'Missing student_id parameter' });
+        if (!student_id || !year || !month) {
+            return res.status(400).json({ error: 'Missing student_id,year,month parameter' });
         }
-
+        const tableName = `attendance_${year}_${month}`;
         // Construct the SQL query to fetch attendance data for the specified student
         const fetchAttendanceQuery = `
-            SELECT a.*, ar.date AS reason_date, ar.reason
-            FROM attendance_2024_3 AS a
-            LEFT JOIN addreason AS ar ON a.id = ar.attendance_id
-            WHERE a.student_id = ?;
-        `;
+    SELECT a.*, ar.date AS reason_date, ar.reason
+    FROM ${tableName} AS a
+    LEFT JOIN addreason AS ar ON a.id = ar.attendance_id
+    WHERE a.student_id = ?;
+`;
+
 
         // Execute the query
         const [rows] = await req.collegePool.query(fetchAttendanceQuery, [student_id]);
@@ -208,6 +211,9 @@ const fetchStudentAttendance = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+
+
+
 
 
 module.exports = { insertAttendance, fetchStudentAttendance };
