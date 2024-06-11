@@ -124,7 +124,7 @@ const { teacher_classList } = require('../controllers/teacher_classList');
 const { chapterPoints } = require('../controllers/chapter_points');
 const { DailyUpdates,  getTeacherDailyUpdate } = require('../controllers/teacher_dailyupdate');
 const { studentList } = require('../controllers/student_list');
-
+const { createHomework } = require('../controllers/createHomework');
 // Endpoint to check the college code
 const { addReason } = require('../controllers/addreason');
 router.post('/check', checkCollege);
@@ -188,6 +188,7 @@ router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection
 router.get('/get_teacher_dailyupdate',validateCollegeCode, setupDatabaseConnection, getTeacherDailyUpdate,closeDatabaseConnection );
 router.get('/students', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
 
+router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
 
 
 module.exports = router;
