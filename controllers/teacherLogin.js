@@ -8,15 +8,16 @@ const teacherLogin= async (req, res) => {
     try {
 
         const teacherQuery=`SELECT 
-        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education, c.college_code,ct.standard, ct.division
+        teacher_code, tname, tpassword, mobileno, teacher_email, teacher_profile, date_of_birth, teacher_education, ct.standard, ct.division 
     FROM 
         teacher t
         JOIN 
         ${process.env.DB_NAME}.College c ON t.college_code= c.college_code
-        JOIN
-    classteachers ct ON t.teacher_code = ct.teacher_id
+        LEFT JOIN
+        classteachers ct ON t.teacher_code= ct.teacher_id
     WHERE 
-        t.teacher_code = ?` 
+        t.teacher_code =?
+` 
     ;
     
 
