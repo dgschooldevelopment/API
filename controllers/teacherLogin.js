@@ -13,6 +13,8 @@ const teacherLogin= async (req, res) => {
         teacher t
         JOIN 
         ${process.env.DB_NAME}.College c ON t.college_code= c.college_code
+        JOIN
+    classteachers ct ON t.teacher_code = ct.teacher_id 
     WHERE 
         t.teacher_code = ?` 
     ;
