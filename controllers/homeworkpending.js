@@ -70,14 +70,14 @@ const homeworkpending = async (req, res) => {
             s.subject_name,
             h.standred,
             h.Division,
-            t.tname AS teacher_name,
+            th.tname AS teacher_name,
             h.date_of_creation 
         FROM 
             homework_pending h
         JOIN 
             ${process.env.DB_NAME}.Subject s ON h.subject_id = s.subject_code_prefixed
         JOIN
-            teacher t ON h.teacher_id = t.teacher_code
+            teacher th ON h.teacher_id = th.teacher_code
              JOIN
             subject_teacher t ON h.teacher_id = t.teacher_code
         LEFT JOIN
