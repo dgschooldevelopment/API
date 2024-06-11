@@ -1,4 +1,4 @@
-/*const { collegesPool } = require('../config/dbconfig');
+const { collegesPool } = require('../config/dbconfig');
 
 const homeworkpending = async (req, res) => {
     const { subjectName, standard, division } = req.query; // Access parameters from req.query
@@ -47,9 +47,9 @@ const homeworkpending = async (req, res) => {
     } 
 };
 
-module.exports.homeworkpending = homeworkpending;*/
+module.exports.homeworkpending = homeworkpending;
 
-const { collegesPool } = require('../config/dbconfig');
+/*const { collegesPool } = require('../config/dbconfig');
 
 const homeworkpending = async (req, res) => {
     const { subjectName, standard, division } = req.query; // Access parameters from req.query
@@ -100,5 +100,5 @@ const homeworkpending = async (req, res) => {
     } 
 };
 
-module.exports.homeworkpending = homeworkpending;
+module.exports.homeworkpending = homeworkpending;*/
 
