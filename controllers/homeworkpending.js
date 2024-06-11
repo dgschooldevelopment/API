@@ -37,10 +37,11 @@ const homeworkpending = async (req, res) => {
   
       const rowsWithBase64ImageHomework = rowsHomework.map(row => ({
         ...row,
-        image: row.image ? row.image.toString('base64') : null
-      }));
-  
-      res.json(rowsWithBase64ImageHomework);
+        image: row.image // No need to convert to base64
+    }));
+    
+    res.json(rowsWithBase64ImageHomework);
+    
     } catch (error) {
       console.error('Error fetching homework pending data:', error);
       res.status(500).json({ error: 'Internal Server Error' });

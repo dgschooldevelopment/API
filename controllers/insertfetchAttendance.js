@@ -238,10 +238,10 @@ const fetchStudentAttendance = async (req, res) => {
             const idField = `${tableName}_id`;
 
             const fetchAttendanceQuery = `
-                SELECT a.*, ar.date AS reason_date, ar.reason
+                SELECT a.*
                 FROM ${tableName} AS a
-                LEFT JOIN addreason AS ar ON a.${tableName}_id = ar.${tableName}_id 
-                WHERE a.student_id = ? AND ar.date BETWEEN '${startDateString}' AND '${todayDateString}';
+             
+                WHERE a.student_id = ? AND  BETWEEN '${startDateString}' AND '${todayDateString}';
             `;
 
             const [rows] = await req.collegePool.query(fetchAttendanceQuery, [student_id]);
@@ -254,7 +254,7 @@ const fetchStudentAttendance = async (req, res) => {
                 }
 
                 for (const [key, value] of Object.entries(row)) {
-                    if (key !== 'id' && key !== 'student_id' && key !== 'teacher_id' && key !== 'reason' && key !== 'reason_date' && ct.standard, ct.division) {
+                    if (key !== 'id' && key !== 'student_id' && key !== 'teacher_id' && key !== 'reason' && key !== 'reason_date' && value !== null) {
                         let dateRecord = attendanceDataForCurrentMonth[row.student_id].find(record => record.date === key);
                         if (!dateRecord) {
                             dateRecord = { date: key, status: value };
