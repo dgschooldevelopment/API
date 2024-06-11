@@ -37,7 +37,7 @@ const homeworkpending = async (req, res) => {
   
       const rowsWithBase64ImageHomework = rowsHomework.map(row => ({
         ...row,
-        image: row.image ? row.image.toString('base64') : null
+        image
       }));
   
       res.json(rowsWithBase64ImageHomework);
