@@ -7,6 +7,13 @@ const addReason = async (req, res) => {
         return res.status(400).json({ error: 'Invalid input data' });
     }
 
+    // Extract year and month from the date
+    const year = new Date(date).getFullYear();
+    const month = new Date(date).getMonth() + 1; // Month is zero-indexed
+
+    // Create a dynamic table name
+    const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
+
     // Get a connection from the pool
     const connection = await req.collegePool.getConnection();
 
@@ -21,23 +28,37 @@ const addReason = async (req, res) => {
             return res.status(400).json({ error: 'Reason already exists for this date and student' });
         }
 
-        // Check if the student was absent on the given date
-        const [attendanceRecord] = await connection.query(
-            'SELECT ??, id FROM attendance_2024_3 WHERE student_id = ?',
-            [date, student_id]
-        );
+        // Format the date to match the table column format
+        const formattedDate = new Date(date).toISOString().split('T')[0];
 
-        if (attendanceRecord.length === 0 || attendanceRecord[0][date] !== 'absent') {
-            return res.status(400).json({ error: 'Student was not absent on the given date' });
+        // Check the attendance status for the given date
+        const checkStatusQuery = `
+            SELECT \`${formattedDate}\` AS status
+            FROM ${tableName}
+            WHERE student_id = ?
+        `;
+
+        const [statusRows] = await connection.query(checkStatusQuery, [student_id]);
+
+        if (statusRows.length === 0 || statusRows[0].status === null) {
+            return res.status(400).json({ message: 'Data not entered for the selected date' });
         }
 
-        // Insert the reason into the addreason table
-        await connection.query(
-            'INSERT INTO addreason (date, reason, attendance_id, student_id) VALUES (?, ?, ?, ?)',
-            [date, reason, attendanceRecord[0].id, student_id]
-        );
+        const attendanceStatus = statusRows[0].status;
 
-        res.status(200).json({ success: true, message: 'Reason added successfully' });
+        if (attendanceStatus === 1) { // Assuming '1' indicates present
+            return res.status(400).json({ message: 'Student was present on this date' });
+        } else if (attendanceStatus === 0) { // Assuming '0' indicates absent
+            // Insert the reason into the addreason table
+            await connection.query(
+                'INSERT INTO addreason (date, reason, student_id) VALUES (?, ?, ?)',
+                [date, reason, student_id]
+            );
+
+            res.status(200).json({ success: true, message: 'Reason added successfully' });
+        } else {
+            return res.status(400).json({ error: 'Invalid attendance status' });
+        }
 
     } catch (error) {
         console.error('Failed to add reason:', error);
