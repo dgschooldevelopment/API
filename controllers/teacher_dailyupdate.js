@@ -44,7 +44,7 @@ const getTeacherDailyUpdate=async (req, res) => {
   try {
       const query = `
          SELECT 
-    t.update_id, t.stand, t.division, t.subject_code_prefixed, t.chapter_id, t.date, t.time, t.teacher_code,
+    t.update_id, t.stand, t.division, t.subject_code_prefixed, sub.subject_name, t.chapter_id, t.date, t.time, t.teacher_code,
     c.chapter_name,
     JSON_ARRAYAGG(p.point_name) AS points
 FROM 
@@ -55,6 +55,8 @@ LEFT JOIN
     daily_update_points dup ON t.update_id = dup.update_id
 LEFT JOIN 
     syallabus.Points p ON dup.point_id = p.point_id
+LEFT JOIN 
+    colleges.Subject sub ON sub.subject_code_prefixed=t.subject_code_prefixed
 WHERE 
     t.teacher_code = ?
 GROUP BY 

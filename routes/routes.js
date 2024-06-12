@@ -15,10 +15,10 @@ const { unittest } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
-<<<<<<< HEAD
+
 const { Attendance } = require('../controllers/attendence'); // Ensure Assignment controller is properly defined
 const {insertAttendance,fetchStudentAttendance } = require('../controllers/insertfetchAttendance'); 
-=======
+
 const { Attendence } = require('../controllers/attendence'); // Ensure Assignment controller is properly defined
 const { teacherLogin } = require('../controllers/teacherLogin');
 const { teacherDashboard } = require('../controllers/teacher_dashboard');
@@ -29,7 +29,7 @@ const { DailyUpdates,  getTeacherDailyUpdate } = require('../controllers/teacher
 const { studentList } = require('../controllers/student_list');
 
 
->>>>>>> 187ed976201be290fd2d12dc102357e13a08a665
+
 // Endpoint to check the college code
 const { addReason } = require('../controllers/addreason');
 router.post('/check', checkCollege);
@@ -127,8 +127,10 @@ const { studentList } = require('../controllers/student_list');
 const { createHomework } = require('../controllers/createHomework');
 // Endpoint to check the college code
 const { addReason } = require('../controllers/addreason');
+
 const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
+
 
 router.post('/check', checkCollege);
 
@@ -190,6 +192,7 @@ router.get('/chapter_points',chapterPoints);
 router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection, DailyUpdates,closeDatabaseConnection  );  
 router.get('/get_teacher_dailyupdate',validateCollegeCode, setupDatabaseConnection, getTeacherDailyUpdate,closeDatabaseConnection );
 router.get('/students', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
+
 router.get('/studentattendence', validateCollegeCode, setupDatabaseConnection, studentAttendance, closeDatabaseConnection);
 
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
@@ -197,3 +200,9 @@ router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,create
 
 router.get('/fetchreason',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection )
 module.exports = router;
+
+router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
+
+
+module.exports = router;
+
