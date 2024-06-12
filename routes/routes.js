@@ -128,6 +128,7 @@ const { createHomework } = require('../controllers/createHomework');
 // Endpoint to check the college code
 const { addReason } = require('../controllers/addreason');
 const { studentAttendance } = require('../controllers/student_absentee_record');
+const { fetchReasonByDate } = require('../controllers/fetchreason');
 
 router.post('/check', checkCollege);
 
@@ -192,5 +193,7 @@ router.get('/students', validateCollegeCode, setupDatabaseConnection, studentLis
 router.get('/studentattendence', validateCollegeCode, setupDatabaseConnection, studentAttendance, closeDatabaseConnection);
 
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
+/// fetch reason
 
+router.get('/fetchreason',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection )
 module.exports = router;

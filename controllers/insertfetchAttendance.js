@@ -1,56 +1,7 @@
 const { closeDatabaseConnection } = require('../middleware/database');
 
+
 /*const insertAttendance = async (req, res) => {
-    try {
-        const { student_id, teacher_id, date, status } = req.query;
-
-        if (!student_id || !teacher_id || !date || !status) {
-            return res.status(400).json({ error: 'Missing required parameters' });
-        }
-
-        // Convert the date to the correct format "YYYY-MM-DD"
-        const formattedDate = new Date(date).toISOString().split('T')[0];
-
-        // Create the dynamic table name
-        const tableName = `attendance_2024_3`;
-
-        // Check if the attendance record for the student and date exists
-        const checkAttendanceQuery = `
-            SELECT \`${formattedDate}\` FROM ${tableName}
-            WHERE student_id = ?;
-        `;
-
-        const [rows] = await req.collegePool.query(checkAttendanceQuery, [student_id]);
-
-        if (rows.length > 0 && rows[0][formattedDate] !== null) {
-            // If the attendance record already exists for the specified date, return a message
-            return res.status(400).send(`Attendance record already exists for ${formattedDate}`);
-        }
-
-        if (rows.length > 0) {
-            // If the attendance record exists but the specified date is null, update the existing row
-            const updateAttendanceQuery = `
-                UPDATE ${tableName}
-                SET \`${formattedDate}\` = ?
-                WHERE student_id = ?;
-            `;
-            await req.collegePool.query(updateAttendanceQuery, [status, student_id]);
-        } else {
-            // If the attendance record doesn't exist, insert a new row
-            const insertAttendanceQuery = `
-                INSERT INTO ${tableName} (student_id, teacher_id, \`${formattedDate}\`)
-                VALUES (?, ?, ?);
-            `;
-            await req.collegePool.query(insertAttendanceQuery, [student_id, teacher_id, status]);
-        }
-
-        return res.status(200).send(`Attendance record inserted/updated successfully for ${formattedDate}`);
-    } catch (err) {
-        console.error('Error occurred:', err);
-        return res.status(500).send('Internal server error');
-    }
-};*/
-const insertAttendance = async (req, res) => {
     try {
         const { student_id, teacher_id, date, status } = req.query;
 
@@ -129,8 +80,93 @@ const insertAttendance = async (req, res) => {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
     }
+};*/
+
+const insertAttendance = async (req, res) => {
+    try {
+        const { student_id, teacher_id, date, status } = req.body;
+
+        if (!student_id || !teacher_id || !date || !status) {
+            return res.status(400).json({ error: 'Missing required parameters' });
+        }
+
+        // Convert the date to the correct format "YYYY-MM-DD"
+        const formattedDate = new Date(date).toISOString().split('T')[0];
+
+        // Extract year and month from the date
+        const year = new Date(date).getFullYear();
+        const month = new Date(date).getMonth() + 1; // Month is zero-indexed
+
+        // Get the number of days in the month
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        // Create a dynamic table name
+        const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
+
+        // Check if the table already exists
+        const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
+
+        if (rows.length === 0) {
+            // If the table doesn't exist, create it and insert the attendance record
+           // If the table doesn't exist, create it and insert the attendance record
+// If the table doesn't exist, create it and insert the attendance record
+const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1; // Start from day 1
+    return `\`${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}\` BOOLEAN`;
+});
+
+
+
+            // Create the dynamic CREATE TABLE query for the attendance table
+            const createAttendanceTableQuery = `
+                CREATE TABLE ${tableName} (
+                    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+                    student_id VARCHAR(40) NOT NULL,
+                    teacher_id VARCHAR(40) NOT NULL,
+                    ${dateColumns.join(', ')},
+                    FOREIGN KEY (student_id) REFERENCES Student(studentid),
+                    FOREIGN KEY (teacher_id) REFERENCES teacher(teacher_code)
+                )
+            `;
+            await req.collegePool.query(createAttendanceTableQuery);
+
+            // Insert the attendance record into the newly created table
+            const insertAttendanceQuery = `
+                INSERT INTO ${tableName} (student_id, teacher_id, \`${formattedDate}\`)
+                VALUES (?, ?, ?)
+            `;
+            const attendanceStatus = status === 'present' ? 1 : 0;
+            await req.collegePool.query(insertAttendanceQuery, [student_id, teacher_id, attendanceStatus]);
+
+            return res.status(200).send(`Created table ${tableName} and inserted attendance record for ${formattedDate}`);
+        }
+
+        // Check if the data for the student and date combination is already inserted
+        const [existingRows] = await req.collegePool.query(`
+            SELECT * FROM ${tableName} WHERE student_id = ? AND \`${formattedDate}\` IS NOT NULL;
+        `, [student_id]);
+
+        if (existingRows.length > 0) {
+            // If data is already inserted, return a message
+            return res.status(400).send(`Attendance record already exists for ${formattedDate}`);
+        }
+
+        // Insert the attendance record into the existing table
+        const insertAttendanceQuery = `
+            INSERT INTO ${tableName} (student_id, teacher_id, \`${formattedDate}\`)
+            VALUES (?, ?, ?)
+        `;
+        const attendanceStatus = status === 'present' ? 1 : 0;
+        await req.collegePool.query(insertAttendanceQuery, [student_id, teacher_id, attendanceStatus]);
+
+        return res.status(200).send(`Attendance record inserted successfully for ${formattedDate}`);
+    } catch (err) {
+        console.error('Error occurred:', err);
+        return res.status(500).send('Internal server error');
+    }
 };
 
+module.exports = { insertAttendance };
 
 /*const moment = require('moment');
 
