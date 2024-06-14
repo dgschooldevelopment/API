@@ -250,90 +250,70 @@ const fetchStudentAttendance = async (req, res) => {
 };
 
 */
-
 const moment = require('moment');
-
 const fetchStudentAttendance = async (req, res) => {
+    const { currentYear, currentMonth, student_id } = req.query;
+
+    if (!currentYear || !currentMonth || !student_id) {
+        return res.status(400).json({ error: 'Missing required query parameters: currentYear, currentMonth, student_id' });
+    }
+
+    function generateQuery(currentYear, currentMonth) {
+        const monthStr = currentMonth.toString().padStart(2, '0'); // Ensure two-digit month
+        let initialTable = `attendance_${currentYear}_${monthStr}`;
+        let query = `SELECT * FROM ${initialTable}`;
+        let previousTable = initialTable;
+
+        for (let year = currentYear; year >= 2024; year--) {
+            for (let month = currentMonth; month >= 1; month--) {
+                const monthStr = month.toString().padStart(2, '0'); // Ensure two-digit month
+                const tableName = `attendance_${year}_${monthStr}`;
+                if (tableName === initialTable) {
+                    continue;
+                }
+
+                query += ` LEFT JOIN ${tableName} ON ${previousTable}.student_id = ${tableName}.student_id`;
+                previousTable = tableName;
+            }
+            currentMonth = 12;  // Reset to December after the first year
+        }
+
+        query += ` WHERE ${initialTable}.student_id = ?`;  // Add condition to query
+        return query;
+    }
+
     try {
-        const { student_id } = req.query;
+        const query = generateQuery(Number(currentYear), Number(currentMonth));
+        console.log(query);
 
-        if (!student_id) {
-            return res.status(400).json({ error: 'Missing student_id parameter' });
+        const [results] = await req.collegePool.query(query, [student_id]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Student not found' });
         }
 
-        const todayDateString = moment().format('YYYY-MM-DD');
-        const currentYear = moment().year();
-        const startDateString = `${currentYear}-01-01`; // Start date of the current year
+        const attendanceData = [];
 
-        const attendanceDataForAllMonths = {};
-
-        // Iterate over each month from January to the current month
-        for (let month = 1; month <= moment().month() + 1; month++) {
-        //const tableName = `attendance_${currentYear}_${month}`;
-          const tableName = `attendance_2024_4`
-            const idField = `${tableName}_id`;
-
-            const fetchAttendanceQuery = `
-                SELECT a.*
-                FROM ${tableName} AS a
-             
-                WHERE a.student_id = ? AND  BETWEEN '${startDateString}' AND '${todayDateString}';
-            `;
-
-            const [rows] = await req.collegePool.query(fetchAttendanceQuery, [student_id]);
-
-            const attendanceDataForCurrentMonth = {};
-
-            rows.forEach(row => {
-                if (!attendanceDataForCurrentMonth[row.student_id]) {
-                    attendanceDataForCurrentMonth[row.student_id] = [];
-                }
-
-                for (const [key, value] of Object.entries(row)) {
-                    if (key !== 'id' && key !== 'student_id' && key !== 'teacher_id' && key !== 'reason' && key !== 'reason_date' && value !== null) {
-                        let dateRecord = attendanceDataForCurrentMonth[row.student_id].find(record => record.date === key);
-                        if (!dateRecord) {
-                            dateRecord = { date: key, status: value };
-                            attendanceDataForCurrentMonth[row.student_id].push(dateRecord);
-                        } else {
-                            dateRecord.status = value;
-                        }
-                    }
-                }
-
-                if (row.reason && row.reason_date) {
-                    const formattedDate = moment(row.reason_date).format('YYYY-MM-DD');
-                    let dateRecord = attendanceDataForCurrentMonth[row.student_id].find(record => record.date === formattedDate);
-                    if (!dateRecord) {
-                        dateRecord = { date: formattedDate, status: null, reasons: [row.reason] };
-                        attendanceDataForCurrentMonth[row.student_id].push(dateRecord);
-                    } else {
-                        if (!dateRecord.reasons) {
-                            dateRecord.reasons = [];
-                        }
-                        dateRecord.reasons.push(row.reason);
+        results.forEach(row => {
+            // Iterate through each row's keys (which are dates in string format)
+            Object.keys(row).forEach(key => {
+                if (key !== 'student_id' && row[key] !== null) {
+                    const dateMoment = moment(key, 'YYYY-MM-DD', true);
+                    if (dateMoment.isValid()) {
+                        const formattedDate = dateMoment.format('YYYY-MM-DD');
+                        attendanceData.push({ date: formattedDate, status: row[key] });
                     }
                 }
             });
+        });
 
-            Object.keys(attendanceDataForCurrentMonth).forEach(studentId => {
-                attendanceDataForCurrentMonth[studentId] = attendanceDataForCurrentMonth[studentId].map(record => {
-                    if (record.reasons && record.reasons.length === 0) {
-                        delete record.reasons;
-                    }
-                    return record;
-                });
-            });
-
-            attendanceDataForAllMonths[`month_${month}`] = attendanceDataForCurrentMonth;
-        }
-
-        return res.status(200).json(attendanceDataForAllMonths);
-    } catch (err) {
-        console.error('Error occurred:', err);
-        return res.status(500).send('Internal server error');
+        res.json({ attendanceData });
+    } catch (error) {
+        console.error('Error executing query:', error);
+        return res.status(500).json({ error: 'An internal server error occurred' });
     }
 };
+
 
 
 
