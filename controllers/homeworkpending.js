@@ -46,7 +46,7 @@ const homeworkpending = async (req, res) => {
           Division: row.Division,
           teacher_name: row.teacher_name,
           date_of_creation: row.date_of_creation,
-          image:  `${row.image} `//row.image ? [`${row.image}`] : [] // Handle image within mapping
+          image:`${row.image}`//row.image ? [`${row.image}`] : [] // Handle image within mapping
       }));
 
       res.json(homeworkData);
