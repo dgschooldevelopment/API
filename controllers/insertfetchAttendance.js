@@ -297,7 +297,7 @@ const fetchStudentAttendance = async (req, res) => {
         results.forEach(row => {
             // Iterate through each row's keys (which are dates in string format)
             Object.keys(row).forEach(key => {
-                if (key !== 'student_id' && row[key] !== null) {
+                if (key !== 'student_id' /*&& row[key] !== null*/) {
                     const dateMoment = moment(key, 'YYYY-MM-DD', true);
                     if (dateMoment.isValid()) {
                         const formattedDate = dateMoment.format('YYYY-MM-DD');
