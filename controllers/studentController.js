@@ -159,7 +159,7 @@ const loginStudent = async (req, res) => {
                 JOIN 
                 ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
-                s.studentid = ?
+             BINARY s.studentid = BINARY ?
         `;
 
         const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
