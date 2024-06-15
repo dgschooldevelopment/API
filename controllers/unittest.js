@@ -65,6 +65,21 @@ const insertUnitTestMarks = async (req, res) => {
         }
 
         const tableName = `unit_test_${stand}_${division}`;
+        const [existingRows] = await req.collegePool.query(`
+            SELECT * FROM ${tableName} WHERE student_id = ? AND unit_test_id = ? LIMIT 1
+        `, [student_id, unit_test_id]);
+
+        if (existingRows.length > 0) {
+            // If data already exists, update the existing record instead of inserting
+            const updateQuery = `
+                UPDATE ${tableName} SET ${Object.keys(marks).map(column => `${column} = ?`).join(', ')}
+                WHERE student_id = ? AND unit_test_id = ?
+            `;
+            const updateValues = [...Object.values(marks), student_id, unit_test_id];
+            await req.collegePool.query(updateQuery, updateValues);
+            return res.status(200).send(`Data updated successfully in ${tableName}`);
+        }
+
         
         // Construct the columns and values dynamically
         const columns = Object.keys(marks).join(', ');
