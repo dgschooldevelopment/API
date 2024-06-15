@@ -56,6 +56,13 @@ const addReason = async (req, res) => {
             );
 
             res.status(200).json({ success: true, message: 'Reason added successfully' });
+        } else if (attendanceStatus === 2) { // Assuming '2' indicates holiday
+            // Query the holidays table for the description
+            const query = 'SELECT description FROM holidays WHERE date = ?';
+            const [holidayRows] = await connection.query(query, [date]);
+
+            const holidayDescription = holidayRows.length > 0 ? holidayRows[0].description : 'No description available';
+            return res.status(400).json({ error: `Holiday: ${holidayDescription}` });
         } else {
             return res.status(400).json({ error: 'Invalid attendance status' });
         }
