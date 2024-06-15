@@ -1,5 +1,7 @@
 
 
+
+
 /*const mysql = require('mysql2/promise');
 const { closeDatabaseConnection } = require('../middleware/database');
 
@@ -98,7 +100,12 @@ const Assignment = async (req, res) => {
     }
 };
 
+
+module.exports = { Assignment };
+*/
+
 module.exports = { Assignment };*/
+
 const moment = require('moment');
 const { closeDatabaseConnection } = require('../middleware/database');
 

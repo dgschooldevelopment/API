@@ -110,7 +110,7 @@ const { feedback } = require('../controllers/feedback');
 const { Chapters, ChapterContent } = require('../controllers/chapters');
 const { subjects, dashboard } = require('../controllers/subdash');
 const { profile } = require('../controllers/profile');
-const { unittest } = require('../controllers/unittest');
+const { unittest,insertUnitTestMarks } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
@@ -169,6 +169,8 @@ router.get('/profile', validateCollegeCode, setupDatabaseConnection, profile, cl
 
 // Endpoint for adding new unit test table
 router.post('/unittest', validateCollegeCode, setupDatabaseConnection, unittest, closeDatabaseConnection);
+//postunittest
+router.get('/insertunitmarks',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection );
 
 // Endpoint for report
 router.get('/report', validateCollegeCode, setupDatabaseConnection, report, closeDatabaseConnection);
@@ -199,7 +201,8 @@ router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,create
 /// fetch reason
 
 router.get('/fetchreason',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection )
-module.exports = router;
+
+router.post('/insertunitmarks',validateCollegeCode,setupDatabaseConnection,insertUnitTestMarks,closeDatabaseConnection );
 
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
 

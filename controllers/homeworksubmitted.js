@@ -1,10 +1,10 @@
 const { closeDatabaseConnection } = require('../middleware/database');
 
 const homeworksubmitted = async (req, res) => {
-    const { studentId, subjectName } = req.query;
+    const { student_id, subject_id } = req.query;
 
-    if (!studentId || !subjectName) {
-        return res.status(400).json({ error: 'studentId and subjectName are required parameters' });
+    if (!student_id || !subject_id) {
+        return res.status(400).json({ error: 'studentId and subjectid are required parameters' });
     }
   
     // Queries
@@ -32,11 +32,12 @@ const homeworksubmitted = async (req, res) => {
            image_submit isub ON hs.submitted_id = isub.homeworksubmitted_id
         WHERE
             hs.student_id = ? AND
-            s.subject_name = ?
+            hs.subject_id = ? AND
+            hs.approval_status != -1
     `;
 
     try {
-        const [results] = await req.collegePool.query(sqlQuery, [studentId, subjectName]);
+        const [results] = await req.collegePool.query(sqlQuery, [student_id, subject_id]);
 
         if (results.length === 0) {
             return res.status(404).json({ error: 'No data found' });
