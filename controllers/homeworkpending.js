@@ -8,7 +8,8 @@ const homeworkpending = async (req, res) => {
     }
 
     try {
-        const sqlHomework = `
+
+      const sqlHomework = `
             SELECT 
                 h.hid,
                 h.homeworkp_id,
@@ -55,6 +56,7 @@ const homeworkpending = async (req, res) => {
         }));
 
         res.json(homeworkData);
+     
 
     } catch (error) {
         console.error('Error fetching homework pending data:', error);
@@ -62,4 +64,8 @@ const homeworkpending = async (req, res) => {
     }
 };
 
-module.exports = { homeworkpending };
+
+
+
+module.exports.homeworkpending = homeworkpending;
+
