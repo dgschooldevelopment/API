@@ -122,38 +122,16 @@ const createAttendanceTable = async (pool, tableName) => {
 
 const insertAttendance = async (req, res) => {
     try {
+        const { college_code, teacher_id } = req.query; // Assuming teacher_id is passed as a query parameter
+
+        if (!teacher_id) {
+            return res.status(400).json({ error: 'Teacher ID is missing' });
+        }
+
         const attendanceRecords = req.body.records; // Expecting an array of attendance records
 
         if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
             return res.status(400).json({ error: 'No attendance records provided' });
-        }
-
-        const { date } = attendanceRecords[0]; // Assuming all records share the same date
-
-        if (!date) {
-            return res.status(400).json({ error: 'Date is missing in attendance records' });
-        }
-
-        // Convert the date to the correct format "YYYY-MM-DD"
-        const formattedDate = new Date(date).toISOString().split('T')[0];
-
-        // Check if the date is a holiday
-        const holidayDescription = await checkIfHoliday(formattedDate, req.collegePool);
-
-        // Extract year and month from the date
-        const year = new Date(date).getFullYear();
-        const month = new Date(date).getMonth() + 1; // Month is zero-indexed
-
-        // Create a dynamic table name
-        const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
-
-        // Check if the table already exists
-        const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
-
-        if (rows.length === 0) {
-            // Table does not exist, create it
-            await createAttendanceTable(req.collegePool, tableName);
-            console.log(`Created table ${tableName}`);
         }
 
         // Prepare queries for batch execution
@@ -164,15 +142,37 @@ const insertAttendance = async (req, res) => {
             ON DUPLICATE KEY UPDATE teacher_id = VALUES(teacher_id)
         `;
 
-        // Check if the daily teacher entry exists, if not, insert it
-        await req.collegePool.query(insertOrUpdateDailyTeacherQuery, [formattedDate, attendanceRecords[0].teacher_id]);
-
         for (const record of attendanceRecords) {
-            const { student_id, status } = record;
+            const { student_id, status, date } = record;
 
-            if (!student_id || !status) {
+            if (!student_id || !status || !date) {
                 return res.status(400).json({ error: 'Missing required parameters in one or more records' });
             }
+
+            // Convert the date to the correct format "YYYY-MM-DD"
+            const formattedDate = new Date(date).toISOString().split('T')[0];
+
+            // Check if the date is a holiday
+            const holidayDescription = await checkIfHoliday(formattedDate, req.collegePool);
+
+            // Extract year and month from the date
+            const year = new Date(date).getFullYear();
+            const month = new Date(date).getMonth() + 1; // Month is zero-indexed
+
+            // Create a dynamic table name
+            const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
+
+            // Check if the table already exists
+            const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
+
+            if (rows.length === 0) {
+                // Table does not exist, create it
+                await createAttendanceTable(req.collegePool, tableName);
+                console.log(`Created table ${tableName}`);
+            }
+
+            // Check if the daily teacher entry exists, if not, insert it
+            await req.collegePool.query(insertOrUpdateDailyTeacherQuery, [formattedDate, teacher_id]);
 
             // Determine the attendance status value
             const attendanceStatus = holidayDescription ? 2 : (status === 'present' ? 1 : 0);
@@ -217,6 +217,7 @@ const insertAttendance = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+
 /*const moment = require('moment');
 
 const fetchStudentAttendance = async (req, res) => {
