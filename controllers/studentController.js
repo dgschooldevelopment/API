@@ -31,7 +31,11 @@ const loginStudent = async (req, res) => {
                 JOIN 
                 ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
+<<<<<<< HEAD
                  BINARY s.studentid = BINARY ?
+=======
+             BINARY s.studentid = BINARY ?
+>>>>>>> aef0f0a2bf1d501808a150e978535533f618d51a
         `;
 
         const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
