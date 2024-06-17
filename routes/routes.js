@@ -130,7 +130,7 @@ const { addReason } = require('../controllers/addreason');
 
 const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
-
+const { approvalstatus } = require('../controllers/updateapprovalstatus');
 
 router.post('/check', checkCollege);
 
@@ -206,6 +206,7 @@ router.post('/insertunitmarks',validateCollegeCode,setupDatabaseConnection,inser
 
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
 
+router.post('/approvalstatus',validateCollegeCode,setupDatabaseConnection, approvalstatus ,closeDatabaseConnection )
 
 module.exports = router;
 
