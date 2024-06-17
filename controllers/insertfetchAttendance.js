@@ -97,12 +97,41 @@ const checkIfHoliday = async (date, pool) => {
     return rows.length > 0 ? rows[0].description : null;
 };
 
+const createAttendanceTable = async (pool, tableName) => {
+    const year = tableName.split('_')[1];
+    const month = tableName.split('_')[2];
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1; // Start from day 1
+        return `\`${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}\` TINYINT DEFAULT NULL`;
+    });
+
+    // Create the dynamic CREATE TABLE query for the attendance table
+    const createAttendanceTableQuery = `
+        CREATE TABLE ${tableName} (
+            id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+            student_id VARCHAR(40) NOT NULL UNIQUE,
+            ${dateColumns.join(', ')},
+            FOREIGN KEY (student_id) REFERENCES Student(studentid)
+        )
+    `;
+    
+    await pool.query(createAttendanceTableQuery);
+};
+
 const insertAttendance = async (req, res) => {
     try {
-        const { student_id, teacher_id, date, status } = req.body;
+        const attendanceRecords = req.body.records; // Expecting an array of attendance records
 
-        if (!student_id || !teacher_id || !date || !status) {
-            return res.status(400).json({ error: 'Missing required parameters' });
+        if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
+            return res.status(400).json({ error: 'No attendance records provided' });
+        }
+
+        const { date } = attendanceRecords[0]; // Assuming all records share the same date
+
+        if (!date) {
+            return res.status(400).json({ error: 'Date is missing in attendance records' });
         }
 
         // Convert the date to the correct format "YYYY-MM-DD"
@@ -122,80 +151,72 @@ const insertAttendance = async (req, res) => {
         const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
 
         if (rows.length === 0) {
-            const daysInMonth = new Date(year, month, 0).getDate();
-            const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
-                const day = i + 1; // Start from day 1
-                return `\`${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}\` TINYINT DEFAULT NULL`;
-            });
-
-            // Create the dynamic CREATE TABLE query for the attendance table
-            const createAttendanceTableQuery = `
-                CREATE TABLE ${tableName} (
-                    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-                    student_id VARCHAR(40) NOT NULL UNIQUE,
-                    teacher_id VARCHAR(40) NOT NULL,
-                    ${dateColumns.join(', ')},
-                    FOREIGN KEY (student_id) REFERENCES Student(studentid),
-                    FOREIGN KEY (teacher_id) REFERENCES teacher(teacher_code)
-                )
-            `;
-            await req.collegePool.query(createAttendanceTableQuery);
+            // Table does not exist, create it
+            await createAttendanceTable(req.collegePool, tableName);
+            console.log(`Created table ${tableName}`);
         }
 
-        // Determine the attendance status value
-        let attendanceStatus;
-        if (holidayDescription) {
-            attendanceStatus = 2;
+        // Prepare queries for batch execution
+        const insertOrUpdateAttendanceQueries = [];
+        const insertOrUpdateDailyTeacherQuery = `
+            INSERT INTO daily_teacher (date, teacher_id)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE teacher_id = VALUES(teacher_id)
+        `;
 
-            // Insert the holiday message into the database
-            const insertHolidayQuery = `
-                INSERT INTO ${tableName} (student_id, teacher_id, \`${formattedDate}\`)
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE \`${formattedDate}\` = VALUES(\`${formattedDate}\`)
-            `;
-            await req.collegePool.query(insertHolidayQuery, [student_id, teacher_id, attendanceStatus]);
+        // Check if the daily teacher entry exists, if not, insert it
+        await req.collegePool.query(insertOrUpdateDailyTeacherQuery, [formattedDate, attendanceRecords[0].teacher_id]);
 
-            return res.status(200).json({ 
-                message: `Holiday: ${holidayDescription}`,
-                'status entered': attendanceStatus 
-            });
-                 } else {
-            attendanceStatus = status === 'present' ? 1 : 0;
+        for (const record of attendanceRecords) {
+            const { student_id, status } = record;
+
+            if (!student_id || !status) {
+                return res.status(400).json({ error: 'Missing required parameters in one or more records' });
+            }
+
+            // Determine the attendance status value
+            const attendanceStatus = holidayDescription ? 2 : (status === 'present' ? 1 : 0);
+
+            // Check if the row for the student already exists
+            const [existingRows] = await req.collegePool.query(`SELECT * FROM ${tableName} WHERE student_id = ?`, [student_id]);
+
+            if (existingRows.length > 0) {
+                // Update the existing row for the specific date
+                const updateAttendanceQuery = `
+                    UPDATE ${tableName}
+                    SET \`${formattedDate}\` = ?
+                    WHERE student_id = ?
+                `;
+                insertOrUpdateAttendanceQueries.push(req.collegePool.format(updateAttendanceQuery, [attendanceStatus, student_id]));
+            } else {
+                // Insert a new row with the attendance record
+                const daysInMonth = new Date(year, month, 0).getDate();
+                const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1; // Start from day 1
+                    return i === new Date(date).getDate() - 1 ? attendanceStatus : null;
+                });
+
+                const insertAttendanceQuery = `
+                    INSERT INTO ${tableName} (student_id, ${Array.from({ length: daysInMonth }, (_, i) => `\`${year}-${month.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}\``).join(', ')})
+                    VALUES (?, ${Array.from({ length: daysInMonth }, () => '?').join(', ')})
+                `;
+                insertOrUpdateAttendanceQueries.push(req.collegePool.format(insertAttendanceQuery, [student_id, ...dateColumns]));
+            }
         }
 
-        // Check if the row for the student already exists
-        const [existingRows] = await req.collegePool.query(`SELECT * FROM ${tableName} WHERE student_id = ?`, [student_id]);
-
-        if (existingRows.length > 0) {
-            // Update the existing row for the specific date
-            const updateAttendanceQuery = `
-                UPDATE ${tableName}
-                SET \`${formattedDate}\` = ?
-                WHERE student_id = ?
-            `;
-            await req.collegePool.query(updateAttendanceQuery, [attendanceStatus, student_id]);
-        } else {
-            // Insert a new row with the attendance record
-            const daysInMonth = new Date(year, month, 0).getDate();
-            const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
-                const day = i + 1; // Start from day 1
-                return i === new Date(date).getDate() - 1 ? attendanceStatus : null;
-            });
-
-            const insertAttendanceQuery = `
-                INSERT INTO ${tableName} (student_id, teacher_id, ${Array.from({ length: daysInMonth }, (_, i) => `\`${year}-${month.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}\``).join(', ')})
-                VALUES (?, ?, ${Array.from({ length: daysInMonth }, () => '?').join(', ')})
-            `;
-            await req.collegePool.query(insertAttendanceQuery, [student_id, teacher_id, ...dateColumns]);
+        // Execute all attendance queries in a batch
+        for (const query of insertOrUpdateAttendanceQueries) {
+            await req.collegePool.query(query);
         }
 
-        return res.status(200).send(`Attendance record inserted/updated successfully for ${formattedDate}`);
+        return res.status(200).json({
+            message: 'Attendance records inserted/updated successfully'
+        });
     } catch (err) {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
     }
 };
-
 /*const moment = require('moment');
 
 const fetchStudentAttendance = async (req, res) => {
