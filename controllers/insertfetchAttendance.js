@@ -122,7 +122,7 @@ const createAttendanceTable = async (pool, tableName) => {
 
 const insertAttendance = async (req, res) => {
     try {
-        const { college_code, teacher_id } = req.query; // Assuming teacher_id is passed as a query parameter
+        const { college_code, teacher_id,date } = req.query; // Assuming teacher_id is passed as a query parameter
 
         if (!teacher_id) {
             return res.status(400).json({ error: 'Teacher ID is missing' });
@@ -133,7 +133,7 @@ const insertAttendance = async (req, res) => {
         if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
             return res.status(400).json({ error: 'No attendance records provided' });
         }
-
+        const currentDate = new Date().toISOString().split('T')[0];
         // Prepare queries for batch execution
         const insertOrUpdateAttendanceQueries = [];
         const insertOrUpdateDailyTeacherQuery = `
@@ -143,7 +143,7 @@ const insertAttendance = async (req, res) => {
         `;
 
         for (const record of attendanceRecords) {
-            const { student_id, status, date } = record;
+            const { student_id, status } = record;
 
             if (!student_id || !status || !date) {
                 return res.status(400).json({ error: 'Missing required parameters in one or more records' });
@@ -217,6 +217,7 @@ const insertAttendance = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+
 
 /*const moment = require('moment');
 
