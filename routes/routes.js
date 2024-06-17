@@ -131,6 +131,7 @@ const { addReason } = require('../controllers/addreason');
 const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
 const { approvalstatus } = require('../controllers/updateapprovalstatus');
+const { attendencecount } = require('../controllers/attendencecount');
 
 router.post('/check', checkCollege);
 
@@ -207,6 +208,8 @@ router.post('/insertunitmarks',validateCollegeCode,setupDatabaseConnection,inser
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
 
 router.post('/approvalstatus',validateCollegeCode,setupDatabaseConnection, approvalstatus ,closeDatabaseConnection )
+// fetch attendence count of the current date 
+router.get('/attendencecount',validateCollegeCode,setupDatabaseConnection,attendencecount ,closeDatabaseConnection )
 
 module.exports = router;
 
