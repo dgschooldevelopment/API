@@ -1,5 +1,5 @@
 
-           
+
 
  
 
@@ -132,7 +132,7 @@ module.exports = {
     loginStudent
 };*/
 
-            
+
   const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
@@ -163,8 +163,20 @@ const loginStudent = async (req, res) => {
                 ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
 
-             BINARY s.studentid = BINARY ?
-       `;
+
+
+                 BINARY s.studentid = BINARY ?
+
+ 
+
+
+   
+
+
+
+
+        `;
+
 
         const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
 
