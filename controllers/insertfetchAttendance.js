@@ -1,3 +1,4 @@
+
 const { closeDatabaseConnection } = require('../middleware/database');
 
 /*const insertAttendance = async (req, res) => {
