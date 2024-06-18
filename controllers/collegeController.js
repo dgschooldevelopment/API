@@ -2,11 +2,11 @@
 const { collegesPool } = require('../config/dbconfig');
 
 const checkCollege = async (req, res) => {
-<<<<<<< HEAD
+
     const { college_code  } = req.body;
 
     if (!college_code ) {
-=======
+
 
     const { college_code } = req.body;
 
@@ -16,15 +16,15 @@ const checkCollege = async (req, res) => {
 
     if (!college_code ) {
 
->>>>>>> b718d5b17207077832f053fc6d902cec4a174425
+
         return res.status(400).json({ error: 'collegeCode is a required parameter' });
     }
 
     const sql = `SELECT * FROM College WHERE college_code = ?`;
 
     try {
-<<<<<<< HEAD
-=======
+
+
 
         const [results] = await collegesPool.query(sql, [college_code]);
 
@@ -57,7 +57,7 @@ const checkCollege = async (req, res) => {
     const sql = `SELECT * FROM College WHERE college_code = ?`;
 
     try {
->>>>>>> b718d5b17207077832f053fc6d902cec4a174425
+
         const [results] = await collegesPool.query(sql, [college_code ]);
 
         if (results.length === 0) {
@@ -89,6 +89,10 @@ const checkCollege = async (req, res) => {
     }
 
     const sql = `SELECT * FROM College WHERE BINARY college_code = ?`;
+
+
+
+
     try {
         const [results] = await collegesPool.query(sql, [college_code]);
 
