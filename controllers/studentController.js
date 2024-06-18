@@ -1,8 +1,8 @@
 
            
-<<<<<<< HEAD
+
  
-=======
+
  /* const { collegesPool } = require('../config/dbconfig');
 
   const loginStudent = async (req, res) => {
@@ -132,7 +132,6 @@ module.exports = {
     loginStudent
 };*/
 
->>>>>>> 0bf2d76b7615411fa9407faf1cb2dfbdb3caff26
             
   const { collegesPool } = require('../config/dbconfig');
 
@@ -163,20 +162,9 @@ const loginStudent = async (req, res) => {
                 JOIN 
                 ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
-<<<<<<< HEAD
-<<<<<<< HEAD
-                 BINARY s.studentid = BINARY ?
-=======
-             BINARY s.studentid = BINARY ?
->>>>>>> aef0f0a2bf1d501808a150e978535533f618d51a
-=======
 
              BINARY s.studentid = BINARY ?
-
-
-
->>>>>>> 0bf2d76b7615411fa9407faf1cb2dfbdb3caff26
-        `;
+       `;
 
         const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
 
