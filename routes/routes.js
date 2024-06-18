@@ -132,6 +132,8 @@ const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
 const { approvalstatus } = require('../controllers/updateapprovalstatus');
 const { attendencecount } = require('../controllers/attendencecount');
+////parent module
+const { parentdashboard } = require('../controllers/parents/parentdashboard');
 
 router.post('/check', checkCollege);
 
@@ -210,6 +212,9 @@ router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,create
 router.post('/approvalstatus',validateCollegeCode,setupDatabaseConnection, approvalstatus ,closeDatabaseConnection )
 // fetch attendence count of the current date 
 router.get('/attendencecount',validateCollegeCode,setupDatabaseConnection,attendencecount ,closeDatabaseConnection )
+///////////////////////////
+////parent modeule api endpoint
 
+router.get('/parentdashboard',validateCollegeCode,setupDatabaseConnection,parentdashboard ,closeDatabaseConnection )
 module.exports = router;
 

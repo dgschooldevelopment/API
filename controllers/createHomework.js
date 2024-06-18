@@ -4,6 +4,9 @@ const { collegePool } = require("../config/dbconfig");
 const createHomework=async (req, res) => {
   const { subject_id, Division, date_of_given, description, homework_content, standred, date_of_creation, image} = req.body;
 const{teacher_id}=req.query;
+if (!subject_id || !Division || !date_of_given || !description || !homework_content || !standred || !date_of_creation || !image || !teacher_id) {
+  return res.status(400).json({ success: false, message: 'Missing required fields: subject_id, Division, date_of_given, description, homework_content, standred, date_of_creation, image, teacher_id' });
+}
   try {
     
     const que = `
