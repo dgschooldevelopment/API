@@ -134,6 +134,8 @@ const { approvalstatus } = require('../controllers/updateapprovalstatus');
 const { attendencecount } = require('../controllers/attendencecount');
 ////parent module
 const { parentdashboard } = require('../controllers/parents/parentdashboard');
+const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
+
 
 router.post('/check', checkCollege);
 
@@ -197,7 +199,7 @@ router.get('/chapter_points',chapterPoints);
 router.post('/teacher_dailyupdate', validateCollegeCode, setupDatabaseConnection, DailyUpdates,closeDatabaseConnection  );  
 router.get('/get_teacher_dailyupdate',validateCollegeCode, setupDatabaseConnection, getTeacherDailyUpdate,closeDatabaseConnection );
 router.get('/students', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
-
+router.get('/getsubmitted_homework',validateCollegeCode, setupDatabaseConnection,getsubmitted_homework,closeDatabaseConnection)
 router.get('/studentattendence', validateCollegeCode, setupDatabaseConnection, studentAttendance, closeDatabaseConnection);
 
 router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
