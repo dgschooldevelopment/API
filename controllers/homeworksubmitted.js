@@ -1,21 +1,14 @@
 
-
-
-
-
-        
-
-
-
 const { closeDatabaseConnection } = require('../middleware/database');
 
-/*const homeworksubmitted = async (req, res) => {
+const homeworksubmitted = async (req, res) => {
     const { student_id, subject_id } = req.query;
 
     if (!student_id || !subject_id) {
         return res.status(400).json({ error: 'studentId and subjectid are required parameters' });
     }
-  
+
+    
     // Queries
     const sqlQuery = `
         SELECT
@@ -30,7 +23,9 @@ const { closeDatabaseConnection } = require('../middleware/database');
             hp.description AS pending_description,
             s.subject_name,
             hs.approval_status,
+               hs.review,
             isub.image AS image_data
+         
         FROM
            homework_submitted hs
         JOIN
@@ -41,8 +36,8 @@ const { closeDatabaseConnection } = require('../middleware/database');
            image_submit isub ON hs.submitted_id = isub.homeworksubmitted_id
         WHERE
             hs.student_id = ? AND
-            hs.subject_id = ? AND
-            hs.approval_status != -1
+            hs.subject_id = ? /*AND
+            hs.approval_status = -1*/
     `;
 
     try {
@@ -68,6 +63,7 @@ const { closeDatabaseConnection } = require('../middleware/database');
                     pending_description: row.pending_description,
                     subject_name: row.subject_name,
                     approval_status: row.approval_status,
+                    review:row.review,
                     images: []
                 };
             }
@@ -87,10 +83,9 @@ const { closeDatabaseConnection } = require('../middleware/database');
 };
 
 module.exports = { homeworksubmitted };
-*/
 
 
-const mysql = require('mysql2/promise'); // Ensure you're using the mysql2 library
+/*const mysql = require('mysql2/promise'); // Ensure you're using the mysql2 library
 
 const homeworksubmitted = async (req, res) => {
     const { student_id, subject_id } = req.query;
@@ -100,7 +95,7 @@ const homeworksubmitted = async (req, res) => {
     }
 
     // SQL Queries
-    const deleteImageSubmitQuery = `
+    /*const deleteImageSubmitQuery = `
         DELETE FROM image_submit
         WHERE homeworksubmitted_id IN (
             SELECT submitted_id FROM homework_submitted
@@ -219,4 +214,4 @@ const homeworksubmitted = async (req, res) => {
 };
 
 module.exports = { homeworksubmitted };
-
+*/
