@@ -22,7 +22,7 @@ const homeworkpending = async (req, res) => {
                 h.Division,
                 t.tname AS teacher_name,
                 h.date_of_creation,
-                COALESCE(hs.approval_status, -1) AS approval_status
+               hs.approval_status
             FROM 
                 homework_pending h
             JOIN 
@@ -36,7 +36,7 @@ const homeworkpending = async (req, res) => {
                 h.subject_id = ?
                 AND h.standred = ?
                 AND h.Division = ?
-                AND (hs.homeworkpending_id IS NULL OR hs.approval_status IN (-1))`;
+                AND (hs.homeworkpending_id IS NULL)`;
 
         const [rowsHomework] = await req.collegePool.query(sqlHomework, [student_id, subject_id, standard, division]);
 
