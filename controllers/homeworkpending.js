@@ -8,37 +8,36 @@ const homeworkpending = async (req, res) => {
     }
 
     try {
+        const sqlHomework = `
+  SELECT 
+    h.hid,
+    h.homeworkp_id,
+    h.subject_id,
+    h.date_of_given,
+    h.description,
+    h.image,
+    s.subject_name,
+    h.standred,
+    h.Division,
+    t.tname AS teacher_name,
+    h.date_of_creation,
+    hs.approval_status
+FROM 
+    homework_pending h
+JOIN 
+    ${process.env.DB_NAME}.Subject s ON h.subject_id = s.subject_code_prefixed
+JOIN 
+    teacher t ON h.teacher_id = t.teacher_code
+LEFT JOIN
+    homework_submitted hs ON h.homeworkp_id = hs.homeworkpending_id  AND hs.student_id = ?
+WHERE 
+    h.subject_id = ? 
+    AND h.standred = ?
+    AND h.Division = ?
+    AND (hs.homeworkpending_id IS NULL OR hs.approval_status = 0) `; 
 
-      const sqlHomework = `
-            SELECT 
-                h.hid,
-                h.homeworkp_id,
-                h.subject_id,
-                h.date_of_given,
-                h.description,
-                h.image,
-                s.subject_name,
-                h.standred,
-                h.Division,
-                t.tname AS teacher_name,
-                h.date_of_creation,
-                COALESCE(hs.approval_status, -1) AS approval_status
-            FROM 
-                homework_pending h
-            JOIN 
-                ${process.env.DB_NAME}.Subject s ON h.subject_id = s.subject_code_prefixed
-            JOIN 
-                teacher t ON h.teacher_id = t.teacher_code
-            LEFT JOIN
-                homework_submitted hs ON h.homeworkp_id = hs.homeworkpending_id 
-                                      AND hs.student_id = ?
-            WHERE 
-                h.subject_id = ?
-                AND h.standred = ?
-                AND h.Division = ?
-                AND (hs.homeworkpending_id IS NULL OR hs.approval_status IN (-1))`;
+    const [rowsHomework] = await req.collegePool.query(sqlHomework, [student_id, subject_id, standard, division]);
 
-        const [rowsHomework] = await req.collegePool.query(sqlHomework, [student_id, subject_id, standard, division]);
 
         const homeworkData = rowsHomework.map(row => ({
             hid: row.hid,
@@ -52,20 +51,15 @@ const homeworkpending = async (req, res) => {
             teacher_name: row.teacher_name,
             date_of_creation: row.date_of_creation,
             image: row.image ? `${row.image}` : null,
+            review: row.review,
             approval_status: row.approval_status
         }));
 
         res.json(homeworkData);
-     
-
     } catch (error) {
         console.error('Error fetching homework pending data:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
-
-
-
 module.exports.homeworkpending = homeworkpending;
-
