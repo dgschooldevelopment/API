@@ -135,6 +135,7 @@ const { attendencecount } = require('../controllers/attendencecount');
 ////parent module
 const { parentdashboard } = require('../controllers/parents/parentdashboard');
 const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
+const { teacher_pending } = require('../controllers/teacher_pending_approval');
 
 
 router.post('/check', checkCollege);
@@ -201,22 +202,22 @@ router.get('/get_teacher_dailyupdate',validateCollegeCode, setupDatabaseConnecti
 router.get('/students', validateCollegeCode, setupDatabaseConnection, studentList,closeDatabaseConnection );
 router.get('/getsubmitted_homework',validateCollegeCode, setupDatabaseConnection,getsubmitted_homework,closeDatabaseConnection)
 router.get('/studentattendence', validateCollegeCode, setupDatabaseConnection, studentAttendance, closeDatabaseConnection);
-
-router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
+router.get('/teacher_pending',validateCollegeCode, setupDatabaseConnection,teacher_pending,closeDatabaseConnection);
+router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection );
 /// fetch reason
 
-router.get('/fetchreason',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection )
+router.get('/fetchreason',validateCollegeCode,setupDatabaseConnection,fetchReasonByDate,closeDatabaseConnection );
 
 router.post('/insertunitmarks',validateCollegeCode,setupDatabaseConnection,insertUnitTestMarks,closeDatabaseConnection );
 
-router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection )
+router.post('/createHomework',validateCollegeCode,setupDatabaseConnection,createHomework ,closeDatabaseConnection );
 
-router.post('/approvalstatus',validateCollegeCode,setupDatabaseConnection, approvalstatus ,closeDatabaseConnection )
+router.post('/approvalstatus',validateCollegeCode,setupDatabaseConnection, approvalstatus ,closeDatabaseConnection );
 // fetch attendence count of the current date 
-router.get('/attendencecount',validateCollegeCode,setupDatabaseConnection,attendencecount ,closeDatabaseConnection )
+router.get('/attendencecount',validateCollegeCode,setupDatabaseConnection,attendencecount ,closeDatabaseConnection );
 ///////////////////////////
 ////parent modeule api endpoint
 
-router.get('/parentdashboard',validateCollegeCode,setupDatabaseConnection,parentdashboard ,closeDatabaseConnection )
+router.get('/parentdashboard',validateCollegeCode,setupDatabaseConnection,parentdashboard ,closeDatabaseConnection );
 module.exports = router;
 
