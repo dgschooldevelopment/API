@@ -88,8 +88,7 @@ const checkCollege = async (req, res) => {
         return res.status(400).json({ error: 'collegeCode is a required parameter' });
     }
 
-    const sql = `SELECT * FROM College WHERE college_code = ?`;
-
+    const sql = `SELECT * FROM College WHERE BINARY college_code = ?`;
     try {
         const [results] = await collegesPool.query(sql, [college_code]);
 
