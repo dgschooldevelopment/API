@@ -13,7 +13,7 @@ const approvalstatus = async (req, res) => {
     if (status === 'accept') {
         approvalStatus = 1;
     } else if (status === 'reject') {
-        approvalStatus = -1;
+        approvalStatus = 0;
     } else {
         return res.status(400).json({ error: 'Invalid status value. Use "accept" or "reject"' });
     }
