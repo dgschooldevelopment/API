@@ -2,10 +2,10 @@ const { collegesPool } = require('../config/dbconfig');
 const { closeDatabaseConnection } = require('../middleware/database');
 
 const approvalstatus = async (req, res) => {
-    const { submitted_id, status } = req.body;
+    const { submitted_id, status, review } = req.body;
 
-    if (!submitted_id || !status) {
-        return res.status(400).json({ error: 'submitted_id and status are required parameters' });
+    if (!submitted_id || !status || !review) {
+        return res.status(400).json({ error: 'submitted_id, review, and status are required parameters' });
     }
 
     // Determine approval status value
@@ -21,12 +21,12 @@ const approvalstatus = async (req, res) => {
     // SQL query to update the approval status
     const sqlUpdate = `
         UPDATE homework_submitted
-        SET approval_status = ?
-        WHERE homeworksubmitted_id= ?
+        SET approval_status = ?, review = ?
+        WHERE homeworksubmitted_id = ?
     `;
 
     try {
-        const [result] = await req.collegePool.query(sqlUpdate, [approvalStatus, submitted_id]);
+        const [result] = await req.collegePool.query(sqlUpdate, [approvalStatus, review, submitted_id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'No record found with the provided submitted_id' });
@@ -40,4 +40,5 @@ const approvalstatus = async (req, res) => {
         await closeDatabaseConnection(req, res);
     }
 };
-module.exports={approvalstatus};
+
+module.exports = { approvalstatus };
