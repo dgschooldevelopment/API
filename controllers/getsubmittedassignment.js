@@ -15,11 +15,13 @@ const getsubmitted_homework = async (req, res) => {
       hs.homeworkpending_id,
       hs.subject_id,
       hs.student_id AS studentid,
+      st.Name,
       hs.date_of_given_submitted,
       hs.description AS submitted_description,
       hp.date_of_given AS date_of_to_submit,
       hp.description AS pending_description,
       s.subject_name,
+     
       hp.image,
       hs.approval_status,
          hs.review,
@@ -29,6 +31,8 @@ const getsubmitted_homework = async (req, res) => {
      homework_submitted hs
   JOIN
       homework_pending hp ON hs.homeworkpending_id = hp.homeworkp_id
+  JOIN
+  Student  st ON  st.studentid = hs.student_id
   JOIN
   ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
   LEFT JOIN
@@ -52,6 +56,7 @@ try {
               homeworkpending_id: row.homeworkpending_id,
               subject_id: row.subject_id,
               studentid: row.studentid,
+              studentName:row.Name,
               date_of_given_submitted: row.date_of_given_submitted,
               submitted_description: row.submitted_description,
               date_of_to_submit: row.date_of_to_submit,
