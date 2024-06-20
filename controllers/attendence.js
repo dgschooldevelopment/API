@@ -50,6 +50,7 @@ const Attendance = async (req, res) => {
     }
 };
 
+
 module.exports = { Attendance };
 
 /*const mysql = require('mysql2/promise');

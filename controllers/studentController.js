@@ -1,5 +1,8 @@
 
-           
+
+
+ 
+
  /* const { collegesPool } = require('../config/dbconfig');
 
   const loginStudent = async (req, res) => {
@@ -61,7 +64,7 @@
   module.exports = {
       loginStudent
   };
-=======*/
+*/
 /*const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
@@ -82,14 +85,14 @@ const loginStudent = async (req, res) => {
                 s.stud_dob, 
                 s.mobile, 
                 s.password, 
-<<<<<<< HEAD
+
                 c.college_code,
                 s.profile_img 
              
         
-=======
+
               s.profile_img
->>>>>>> 82b540a284e57bb3cc1f76ee027d112477680c8c
+
             FROM 
              Student s
                 JOIN 
@@ -114,8 +117,8 @@ const loginStudent = async (req, res) => {
         if (student.profile_img) {
             base64ProfileImg = student.profile_img.toString('base64').replace(/\n/g, '');
         }
-<<<<<<< HEAD
-=======
+
+
         const studentData = { ...student, profile_img: base64ProfileImg };
 
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: studentData });
@@ -129,7 +132,7 @@ module.exports = {
     loginStudent
 };*/
 
-            
+
   const { collegesPool } = require('../config/dbconfig');
 
 const loginStudent = async (req, res) => {
@@ -159,8 +162,21 @@ const loginStudent = async (req, res) => {
                 JOIN 
                 ${process.env.DB_NAME}.College c ON s.college_id = c.CollegeID
             WHERE 
-                s.studentid = ?
+
+
+
+                 BINARY s.studentid = BINARY ?
+
+ 
+
+
+   
+
+
+
+
         `;
+
 
         const [studentResults] = await req.collegePool.query(studentSql, [studentId]);
 

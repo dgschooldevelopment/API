@@ -1,12 +1,12 @@
 const { closeDatabaseConnection } = require('../middleware/database');
 
 const evolutionhomework = async (req, res, next) => {
-    const { subject_name, standred, division, student_id } = req.query;
+    const { subject_id, standred, division, student_id } = req.query;
 
     // Log received query parameters for debugging
-    console.log('Received query parameters:', { subject_name, standred, division, student_id });
+    console.log('Received query parameters:', { subject_id, standred, division, student_id });
 
-    if (!subject_name || !standred || !division || !student_id) {
+    if (!subject_id || !standred || !division || !student_id) {
         return res.status(400).json({ error: 'Invalid query parameters' });
     }
 
@@ -19,21 +19,21 @@ const evolutionhomework = async (req, res, next) => {
             SELECT COUNT(*) AS total_homework
             FROM homework_pending hp
             JOIN ${process.env.DB_NAME}.Subject s ON hp.subject_id = s.subject_code_prefixed
-            WHERE s.subject_name = ? AND hp.standred = ? AND hp.division = ?
+            WHERE hp.subject_id = ? AND hp.standred = ? AND hp.division = ?
         `,
         approvedHomework: `
             SELECT COUNT(*) as count
             FROM homework_submitted hs
             JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
             JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            WHERE hs.student_id = ? AND s.subject_name = ? AND hs.approval_status = 1
+            WHERE hs.student_id = ? AND hs.subject_id = ? AND hs.approval_status = 1
         `,
         pendingHomework: `
             SELECT COUNT(*) as count
             FROM homework_submitted hs
             JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
             JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            WHERE hs.student_id = ? AND s.subject_name = ? AND hs.approval_status = 0
+            WHERE hs.student_id = ? AND hs.subject_id = ? AND hs.approval_status = 0
         `,
         studentName: `
             SELECT Name
@@ -43,9 +43,9 @@ const evolutionhomework = async (req, res, next) => {
     };
 
     const params = {
-        totalHomework: [subject_name, standredValue, division],
-        approvedHomework: [student_id, subject_name],
-        pendingHomework: [student_id, subject_name],
+        totalHomework: [subject_id, standredValue, division],
+        approvedHomework: [student_id, subject_id],
+        pendingHomework: [student_id, subject_id],
         studentName: [student_id]
     };
 
