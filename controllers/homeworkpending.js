@@ -64,4 +64,3 @@ WHERE
 };
 
 module.exports.homeworkpending = homeworkpending;
-
