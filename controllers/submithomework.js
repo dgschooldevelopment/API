@@ -129,10 +129,13 @@ const submitHomework = async (req, res) => {
                 'INSERT INTO image_submit (image, homeworksubmitted_id) VALUES ?',
                 [imageValues]
             );
+
+            // Set approval_status to null
             await connection.query(
                 'UPDATE homework_submitted SET approval_status = NULL WHERE submitted_id = ?',
                 [submissionId]
             );
+
             // Commit the transaction
             await connection.commit();
 

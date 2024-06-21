@@ -11,10 +11,10 @@ if (!subject_id || !Division || !date_of_given || !description  || !standred || 
     
     const que = `
       INSERT INTO homework_pending (subject_id, Division, date_of_given, teacher_id, description, standred, date_of_creation, image)
-      VALUES (?,?,?,?,?,?,?,?,?)
+      VALUES (?,?,?,?,?,?,?,?)
     `;
 
-    const [result] = await req.collegePool.query(que, [subject_id, Division, date_of_given, teacher_id, description,  standred, date_of_creation, image,]);
+    const [result] = await req.collegePool.query(que, [subject_id, Division, date_of_given, teacher_id, description,  standred, date_of_creation, image]);
 
     res.status(200).json({ success: true, message: 'Homework posted successfully', homework_id: result.insertId });
   } catch (error) {
