@@ -27,8 +27,7 @@ const parentlogin = async (req, res) => {
                                    
                   p.password
               FROM Parents p
-              JOIN Student s ON p.parent_id = s.parent_id
-              WHERE p.parent_id = ?
+                           WHERE p.parent_id = ?
                 `;
         const [parentDetails] = await req.collegePool.query(parentQuery, [parent_id]);
 
