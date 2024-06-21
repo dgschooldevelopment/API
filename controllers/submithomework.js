@@ -58,11 +58,18 @@ const { closeDatabaseConnection } = require('../middleware/database');
 
 const submitHomework = async (req, res) => {
     const { homeworkpending_id, subject_id, student_id, description, images } = req.body;
+  // Validate input data
+  if (!homeworkpending_id || !subject_id || !student_id || !description || !Array.isArray(images) || images.length === 0) {
+    return res.status(400).json({ error: 'All fields are required and images must be an array with at least one image' });
+}
 
-    if (!homeworkpending_id || !subject_id || !student_id || !description || !Array.isArray(images) || images.length === 0) {
-        return res.status(400).json({ error: 'Invalid input data' });
-    }
-
+// Ensure fields are not just whitespace
+if (typeof description !== 'string' || description.trim() === '' || typeof student_id !== 'string' || student_id.trim() === '') {
+    return res.status(400).json({ error: 'Description and student ID cannot be empty or just whitespace' });
+}
+if (images.some(image => typeof image !== 'string' || image.trim() === '')) {
+    return res.status(400).json({ error: 'Each image must be a non-empty string' });
+}
     // Get a connection from the pool
     const connection = await req.collegePool.getConnection();
 
