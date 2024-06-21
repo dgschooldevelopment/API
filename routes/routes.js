@@ -143,6 +143,7 @@ const { parentprofile} = require('../controllers/parents/parentprofile');
 const { parentstudentlist} = require('../controllers/parents/parentstudentlist');
 
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
+const { addfeedetails } = require('../controllers/addfeedetails');
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -219,6 +220,9 @@ router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, cre
 router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, approvalstatus, closeDatabaseConnection);
 // fetch attendence count of the current date 
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
+router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
+
+
 ///////////////////////////
 ////parent modeule api endpoint
 router.get('/parentdashboard', validateCollegeCode, setupDatabaseConnection, parentdashboard, closeDatabaseConnection);
