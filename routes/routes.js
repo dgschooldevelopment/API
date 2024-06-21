@@ -132,13 +132,17 @@ const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
 const { approvalstatus } = require('../controllers/updateapprovalstatus');
 const { attendencecount } = require('../controllers/attendencecount');
-////parent module
-const { parentdashboard } = require('../controllers/parents/parentdashboard');
+
 const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
 const { teacher_pending } = require('../controllers/teacher_pending_approval');
 const { viewhomework } = require('../controllers/homeworkview_teacher');
+////parent module
+const { parentdashboard } = require('../controllers/parents/parentdashboard');
+const { parentlogin } = require('../controllers/parents/parentlogin');
+const { parentprofile} = require('../controllers/parents/parentprofile');
+const { parentstudentlist} = require('../controllers/parents/parentstudentlist');
 
-
+const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -217,7 +221,12 @@ router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, app
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
 ///////////////////////////
 ////parent modeule api endpoint
-
 router.get('/parentdashboard', validateCollegeCode, setupDatabaseConnection, parentdashboard, closeDatabaseConnection);
+
+router.post('/parentlogin', validateCollegeCode, setupDatabaseConnection, parentlogin, closeDatabaseConnection);
+router.get('/parentprofile', validateCollegeCode, setupDatabaseConnection, parentprofile, closeDatabaseConnection);
+router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, parentstudentlist, closeDatabaseConnection);
+router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
+
 module.exports = router;
 
