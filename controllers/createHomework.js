@@ -16,7 +16,7 @@ if (!subject_id || !Division || !date_of_given || !description || !homework_cont
 
     const [result] = await req.collegePool.query(que, [subject_id, Division, date_of_given, teacher_id, description, homework_content, standred, date_of_creation, image,]);
 
-    res.status(201).json({ success: true, message: 'Homework posted successfully', homework_id: result.insertId });
+    res.status(200).json({ success: true, message: 'Homework posted successfully', homework_id: result.insertId });
   } catch (error) {
     console.error('Error posting homework:', error);
     res.status(500).json({ success: false, message: 'Error posting homework.' });
