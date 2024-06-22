@@ -132,7 +132,7 @@ const submitHomework = async (req, res) => {
 
             // Set approval_status to null
             await connection.query(
-                'UPDATE homework_submitted SET approval_status = NULL WHERE submitted_id = ?',
+                'UPDATE homework_submitted SET approval_status = NULL ,review = NULL WHERE submitted_id = ?',
                 [submissionId]
             );
 
