@@ -173,6 +173,7 @@ const getUnitTestIds = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+<<<<<<< main
 const createUnitTestTable = async (req, res, stand, division, subjectNames) => {
     try {
         const tableName = `unit_test_${stand}_${division}`;
@@ -193,11 +194,37 @@ const createUnitTestTable = async (req, res, stand, division, subjectNames) => {
     } catch (err) {
         console.error('Error occurred while creating table:', err);
         return 'Error creating table';
+=======
+const getUnitTestIds = async (req, res) => {
+    
+
+    try {
+        const query = `
+            SELECT unit_test_name
+            FROM ${process.env.DB_NAME}.SelectUnitTest
+        `;
+        const [results] = await collegesPool.query(query);
+
+        if (results.length > 0) {
+            return res.status(200).json(results);
+        } else {
+            return res.status(404).json({
+                message: 'No unit test IDs found'
+            });
+        }
+    } catch (err) {
+        console.error('Error occurred:', err);
+        return res.status(500).send('Internal server error');
+>>>>>>> master
     }
 };
 
 module.exports = {
     unittest,
     insertUnitTestMarks,
+<<<<<<< main
     getUnitTestIds
+=======
+       getUnitTestIds
+>>>>>>> master
 };
