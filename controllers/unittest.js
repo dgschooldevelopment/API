@@ -214,7 +214,7 @@ const getUnitTestIds = async (req, res) => {
     } catch (err) {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
->>>>>>> master
+
     }
 };
 
