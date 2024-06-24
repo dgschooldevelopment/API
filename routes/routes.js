@@ -221,6 +221,7 @@ router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, app
 // fetch attendence count of the current date 
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
 router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
+router.get('/getUnitTestname', validateCollegeCode, setupDatabaseConnection, getUnitTestIds, closeDatabaseConnection);
 
 
 ///////////////////////////
