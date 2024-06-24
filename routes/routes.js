@@ -110,7 +110,7 @@ const { feedback } = require('../controllers/feedback');
 const { Chapters, ChapterContent } = require('../controllers/chapters');
 const { subjects, dashboard } = require('../controllers/subdash');
 const { profile } = require('../controllers/profile');
-const { unittest, insertUnitTestMarks } = require('../controllers/unittest');
+const { unittest, insertUnitTestMarks,getUnitTestIds } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
@@ -221,7 +221,7 @@ router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, app
 // fetch attendence count of the current date 
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
 router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
-
+router.get('/getUnitTestname', getUnitTestIds);
 
 ///////////////////////////
 ////parent modeule api endpoint
