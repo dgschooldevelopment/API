@@ -222,6 +222,7 @@ router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, app
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
 router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
 
+router.get('/getUnitTestname', validateCollegeCode, setupDatabaseConnection, getUnitTestIds, closeDatabaseConnection);
 
 ///////////////////////////
 ////parent modeule api endpoint
