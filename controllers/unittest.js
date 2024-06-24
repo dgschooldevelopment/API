@@ -97,8 +97,28 @@ const insertUnitTestMarks = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+const getUnitTestIds = async (req, res) => {
+    try {
+        const query = `
+            SELECT  unit_test_name
+            FROM ${process.env.DB_NAME}.SelectUnitTest
+        `;
+        const [results] = await req.collegePool.query(query);
 
+        if (results.length > 0) {
+            return res.status(200).json(results);
+        } else {
+            return res.status(404).json({
+                message: 'No unit test IDs found'
+            });
+        }
+    } catch (err) {
+        console.error('Error occurred:', err);
+        return res.status(500).send('Internal server error');
+    }
+};
 module.exports = {
     unittest,
-    insertUnitTestMarks
+    insertUnitTestMarks,
+       getUnitTestIds
 };
