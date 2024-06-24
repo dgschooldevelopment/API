@@ -98,12 +98,14 @@ const insertUnitTestMarks = async (req, res) => {
     }
 };
 const getUnitTestIds = async (req, res) => {
+    
+
     try {
         const query = `
-            SELECT  unit_test_name
+            SELECT unit_test_name
             FROM ${process.env.DB_NAME}.SelectUnitTest
         `;
-        const [results] = await req.collegePool.query(query);
+        const [results] = await collegesPool.query(query);
 
         if (results.length > 0) {
             return res.status(200).json(results);
@@ -117,6 +119,7 @@ const getUnitTestIds = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+
 module.exports = {
     unittest,
     insertUnitTestMarks,
