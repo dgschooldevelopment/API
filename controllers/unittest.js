@@ -173,7 +173,6 @@ const getUnitTestIds = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
-<<<<<<< main
 const createUnitTestTable = async (req, res, stand, division, subjectNames) => {
     try {
         const tableName = `unit_test_${stand}_${division}`;
@@ -194,7 +193,7 @@ const createUnitTestTable = async (req, res, stand, division, subjectNames) => {
     } catch (err) {
         console.error('Error occurred while creating table:', err);
         return 'Error creating table';
-=======
+
 const getUnitTestIds = async (req, res) => {
     
 
@@ -222,9 +221,9 @@ const getUnitTestIds = async (req, res) => {
 module.exports = {
     unittest,
     insertUnitTestMarks,
-<<<<<<< main
-    getUnitTestIds
-=======
+
+ 
+
        getUnitTestIds
->>>>>>> master
+
 };
