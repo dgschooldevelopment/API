@@ -54,6 +54,10 @@ const unittest = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
+
+   
+
+
 const createUnitTestTable = async (req, stand, division, subjectNames) => {
     const tableName = `unit_test_${stand}_${division}`;
     const columns = subjectNames.map(subject => `${subject} INT`).join(', ');
@@ -154,14 +158,21 @@ const insertUnitTestMarks = async (req, res) => {
                 response.existing.push(student_id);
             }
         }
-
-        // Prepare final response message
-        let message = 'All data processed successfully.';
         if (response.added.length > 0) {
-            message += ` Added/Updated data for students: ${response.added.join(', ')}.`;
+            console.log(`Inserted/Updated data for students: ${response.added.join(', ')}`);
         }
         if (response.existing.length > 0) {
-            message += ` Data already exists for students: ${response.existing.join(', ')}.`;
+            console.log(`Data already exists for students: ${response.existing.join(', ')}`);
+        }
+        // Prepare final response message
+        let message = '';
+        if (response.added.length > 0) {
+            message += ` Added/Updated data for students`;
+          // ` inserted data for students: ${response.added.join(', ')}.`
+        }
+        if (response.existing.length > 0) {
+           message += ` Data already exists for students`;
+          // ` Data already exists for students: ${response.existing.join(', ')}.`;
         }
 
         return res.status(200).json({ message });
@@ -202,6 +213,3 @@ module.exports = {
     insertUnitTestMarks,
     getUnitTestIds
 };
-
-
-  
