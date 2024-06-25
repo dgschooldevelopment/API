@@ -119,10 +119,10 @@ const report = async (req, res) => {
             }));
 
             // Add overall percentage to the response
-            response.push({
+          /*  response.push({
                 subjectname: 'Overall',
                 percentage: parseFloat(result.overall_percentage).toFixed(2)
-            });
+            });*/
 
             return res.status(200).json(response);
         } else {
