@@ -56,6 +56,21 @@ const unittest = async (req, res) => {
 };
 
    
+const createUnitTestTable = async (req, stand, division, subjectNames) => {
+    const tableName = `unit_test_${stand}_${division}`;
+    const columns = subjectNames.map(subject => `${subject} INT`).join(', ');
+    const createTableQuery = `
+        CREATE TABLE ${tableName} (
+            student_id INT,
+            unit_test_id INT,
+            ${columns},
+            PRIMARY KEY (student_id, unit_test_id)
+        )
+    `;
+    await req.collegePool.query(createTableQuery);
+    return 'Table created successfully';
+};
+
 const insertUnitTestMarks = async (req, res) => {
     try {
         const studentsData = req.body;
@@ -108,14 +123,24 @@ const insertUnitTestMarks = async (req, res) => {
         for (const data of studentsData) {
             const { student_id, marks } = data;
 
-            // Check if data already exists for student_id, unit_test_id, and subject_name
+            // Check if data already exists for student_id and unit_test_id
             const existingDataQuery = `
                 SELECT ${subject_name} FROM ${tableName} 
                 WHERE student_id = ? AND unit_test_id = ?
             `;
             const [existingRows] = await req.collegePool.query(existingDataQuery, [student_id, unit_test_id]);
 
-            if (existingRows.length > 0 && existingRows[0][subject_name] === null) {
+            if (existingRows.length === 0) {
+                // Insert new record if student_id and unit_test_id do not exist
+                const insertQuery = `
+                    INSERT INTO ${tableName} (student_id, unit_test_id, ${subject_name})
+                    VALUES (?, ?, ?)
+                `;
+                const insertValues = [student_id, unit_test_id, marks];
+                await req.collegePool.query(insertQuery, insertValues);
+                console.log(`Data inserted successfully for student ${student_id} in ${tableName}`);
+                response.added.push(student_id);
+            } else if (existingRows[0][subject_name] === null) {
                 // Update record if the subject column is null
                 const updateQuery = `
                     UPDATE ${tableName}
@@ -135,7 +160,7 @@ const insertUnitTestMarks = async (req, res) => {
         // Prepare final response message
         let message = 'All data processed successfully.';
         if (response.added.length > 0) {
-            message += ` Updated data for students: ${response.added.join(', ')}.`;
+            message += ` Added/Updated data for students: ${response.added.join(', ')}.`;
         }
         if (response.existing.length > 0) {
             message += ` Data already exists for students: ${response.existing.join(', ')}.`;
@@ -148,6 +173,7 @@ const insertUnitTestMarks = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 const getUnitTestIds = async (req, res) => {
     
@@ -171,28 +197,7 @@ const getUnitTestIds = async (req, res) => {
         return res.status(500).send('Internal server error');
     }
 };
-const createUnitTestTable = async (req, res, stand, division, subjectNames) => {
-    try {
-        const tableName = `unit_test_${stand}_${division}`;
 
-        const createUnitTestTableQuery = `
-            CREATE TABLE ${tableName} (
-                unit_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-                student_id VARCHAR(30) NOT NULL,
-                unit_test_id INT NOT NULL,
-                ${subjectNames.map(subject => `\`${subject}\` VARCHAR(255)`).join(',\n')},
-                FOREIGN KEY (student_id) REFERENCES Student(studentid),
-                FOREIGN KEY (unit_test_id) REFERENCES ${process.env.DB_NAME}.SelectUnitTest(unit_test_id)
-            )
-        `;
-
-        await req.collegePool.query(createUnitTestTableQuery);
-        return 'Table created successfully';
-    } catch (err) {
-        console.error('Error occurred while creating table:', err);
-        return 'Error creating table';
-    }
-};
 
 module.exports = {
     unittest,
