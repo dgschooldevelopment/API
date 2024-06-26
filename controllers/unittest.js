@@ -189,7 +189,7 @@ const getUnitTestIds = async (req, res) => {
 
     try {
         const query = `
-            SELECT unit_test_name
+            SELECT unit_test_id,unit_test_name
             FROM ${process.env.DB_NAME}.SelectUnitTest
         `;
         const [results] = await collegesPool.query(query);
