@@ -199,7 +199,7 @@ router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReas
 // teacherAPI Endpoints
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin, closeDatabaseConnection);
-router.get('/teacher_dashboard', teacherDashboard);
+router.get('/teacher_dashboard',validateCollegeCode, setupDatabaseConnection, teacherDashboard,  closeDatabaseConnection);
 router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile, closeDatabaseConnection);
 router.get('/teacher_classlist', validateCollegeCode, setupDatabaseConnection, teacher_classList, closeDatabaseConnection);
 router.get('/chapter_points', chapterPoints);
@@ -222,6 +222,12 @@ router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, app
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
 router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
 router.get('/getUnitTestname', getUnitTestIds);
+
+
+
+
+
+
 
 ///////////////////////////
 ////parent modeule api endpoint
