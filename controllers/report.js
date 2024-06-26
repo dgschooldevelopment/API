@@ -61,8 +61,8 @@ const report = async (req, res) => {
 
 module.exports = {
     report
-};*/
-
+};
+*/
 const mysql = require('mysql2/promise');
 
 const report = async (req, res) => {
@@ -119,7 +119,7 @@ const report = async (req, res) => {
             }));
 
             // Add overall percentage to the response
-           /* response.push({
+          /*  response.push({
                 subjectname: 'Overall',
                 percentage: parseFloat(result.overall_percentage).toFixed(2)
             });*/
@@ -137,4 +137,3 @@ const report = async (req, res) => {
 module.exports = {
     report
 };
-
