@@ -77,7 +77,4 @@ module.exports = {
     getTeacherDailyUpdate
 };
 
-module.exports = {
-    DailyUpdates,
-    getTeacherDailyUpdate
-};
+
