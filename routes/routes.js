@@ -141,7 +141,7 @@ const { parentdashboard } = require('../controllers/parents/parentdashboard');
 const { parentlogin } = require('../controllers/parents/parentlogin');
 const { parentprofile} = require('../controllers/parents/parentprofile');
 const { parentstudentlist} = require('../controllers/parents/parentstudentlist');
-const { classes } = require('../controllers/class');
+const { classes } = require('../controllers/classes');
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
 router.post('/check', checkCollege);
