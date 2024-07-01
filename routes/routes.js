@@ -137,6 +137,8 @@ const { parentdashboard } = require('../controllers/parents/parentdashboard');
 const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
 const { teacher_pending } = require('../controllers/teacher_pending_approval');
 const { viewhomework } = require('../controllers/homeworkview_teacher');
+const { classes } = require('../controllers/class');
+const { fetchTeacher } = require('../controllers/fetchteacher');
 
 
 router.post('/check', checkCollege);
@@ -207,9 +209,9 @@ router.get('/teacher_pending', validateCollegeCode, setupDatabaseConnection, tea
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
 router.get('/viewhomework', validateCollegeCode, setupDatabaseConnection, viewhomework, closeDatabaseConnection);
 router.get('/fetchreason', validateCollegeCode, setupDatabaseConnection, fetchReasonByDate, closeDatabaseConnection);
-
+router.get('/fetchclasses', validateCollegeCode, setupDatabaseConnection,classes, closeDatabaseConnection);
 router.post('/insertunitmarks', validateCollegeCode, setupDatabaseConnection, insertUnitTestMarks, closeDatabaseConnection);
-
+router.get('/fetchteacher', validateCollegeCode, setupDatabaseConnection, fetchTeacher, closeDatabaseConnection);
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
 
 router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, approvalstatus, closeDatabaseConnection);
