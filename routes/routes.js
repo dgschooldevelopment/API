@@ -137,7 +137,7 @@ const { getsubmitted_homework } = require('../controllers/getsubmittedassignment
 const { teacher_pending } = require('../controllers/teacher_pending_approval');
 const { viewhomework } = require('../controllers/homeworkview_teacher');
 
-const { classes } = require('../controllers/class');
+//const { classes } = require('../controllers/class');
 const { fetchTeacher } = require('../controllers/fetchteacher');
 
 
