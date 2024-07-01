@@ -43,7 +43,11 @@ const homeworksubmitted = async (req, res) => {
     try {
         const [results] = await req.collegePool.query(sqlQuery, [student_id, subject_id]);
 
+
+      /*  if (results.length === 0) {
+
         /*if (results.length === 0) {
+
             return res.status(404).json({ error: 'No data found' });
         }*/
 
