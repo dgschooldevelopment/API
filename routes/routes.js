@@ -196,6 +196,10 @@ router.post('/insert', validateCollegeCode, setupDatabaseConnection, insertAtten
 router.get('/fetchattendance', validateCollegeCode, setupDatabaseConnection, fetchStudentAttendance, closeDatabaseConnection);
 router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReason, closeDatabaseConnection);
 
+
+
+
+
 // teacherAPI Endpoints
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin, closeDatabaseConnection);
