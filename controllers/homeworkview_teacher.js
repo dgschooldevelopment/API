@@ -1,10 +1,10 @@
 const { collegesPool } = require('../config/dbconfig');
 
 const viewhomework = async (req, res) => {
-    const { teacher_code } = req.query;
+    const { teacher_code ,subject_id, Standard, Division } = req.query;
 
-    if (!teacher_code) {
-        return res.status(400).json({ error: 'teacher code' });
+    if (!teacher_code || !Standard || !Division || !subject_id) {
+        return res.status(400).json({ error: 'Need All Parameters' });
     }
 
     try {
@@ -27,9 +27,9 @@ const viewhomework = async (req, res) => {
                 ${process.env.DB_NAME}.Subject s ON h.subject_id = s.subject_code_prefixed
             
             WHERE 
-                h.teacher_id = ?`;
+                h.teacher_id = ? AND h.subject_id = ? AND h.standred=? AND h.Division=?`;
 
-        const [rowsHomework] = await req.collegePool.query(sqlHomework, [teacher_code]);
+        const [rowsHomework] = await req.collegePool.query(sqlHomework, [teacher_code,subject_id, Standard, Division ]);
 
         const homeworkData = rowsHomework.map(row => ({
             hid: row.hid,
