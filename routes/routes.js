@@ -136,6 +136,12 @@ const { attendencecount } = require('../controllers/attendencecount');
 const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
 const { teacher_pending } = require('../controllers/teacher_pending_approval');
 const { viewhomework } = require('../controllers/homeworkview_teacher');
+
+const { classes } = require('../controllers/class');
+const { fetchTeacher } = require('../controllers/fetchteacher');
+
+
+
 ////parent module
 const { parentdashboard } = require('../controllers/parents/parentdashboard');
 const { parentlogin } = require('../controllers/parents/parentlogin');
@@ -144,6 +150,7 @@ const { parentstudentlist} = require('../controllers/parents/parentstudentlist')
 const { classes } = require('../controllers/classes');
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
+
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -212,10 +219,14 @@ router.get('/teacher_pending', validateCollegeCode, setupDatabaseConnection, tea
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
 router.get('/viewhomework', validateCollegeCode, setupDatabaseConnection, viewhomework, closeDatabaseConnection);
 router.get('/fetchreason', validateCollegeCode, setupDatabaseConnection, fetchReasonByDate, closeDatabaseConnection);
+
+router.get('/fetchclasses', validateCollegeCode, setupDatabaseConnection,classes, closeDatabaseConnection);
+
 router.get('/fetchclasses', validateCollegeCode, setupDatabaseConnection, classes , closeDatabaseConnection);
 
-router.post('/insertunitmarks', validateCollegeCode, setupDatabaseConnection, insertUnitTestMarks, closeDatabaseConnection);
 
+router.post('/insertunitmarks', validateCollegeCode, setupDatabaseConnection, insertUnitTestMarks, closeDatabaseConnection);
+router.get('/fetchteacher', validateCollegeCode, setupDatabaseConnection, fetchTeacher, closeDatabaseConnection);
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
 
 router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, approvalstatus, closeDatabaseConnection);

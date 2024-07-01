@@ -5,13 +5,17 @@ const studentList = async (req, res) => {
 
   try {
     const query = `
+
+      SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
+
        SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
+
       FROM Student s
       JOIN ${process.env.DB_NAME}.College c ON s.college_id = c.collegeID
       WHERE s.std = ? AND s.division = ?
     `;
 
-    const [rows] =await req.collegePool.query(query, [stand, division]);
+    const [rows] = await req.collegePool.query(query, [stand, division]);
 
     const studentData = rows.map(student => {
       let base64ProfileImg = null;
@@ -20,7 +24,7 @@ const studentList = async (req, res) => {
       }
 
       return {
-       ...student,
+        ...student,
         profile_img: base64ProfileImg
       };
     });
