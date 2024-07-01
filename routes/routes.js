@@ -110,7 +110,7 @@ const { feedback } = require('../controllers/feedback');
 const { Chapters, ChapterContent } = require('../controllers/chapters');
 const { subjects, dashboard } = require('../controllers/subdash');
 const { profile } = require('../controllers/profile');
-const { unittest, insertUnitTestMarks } = require('../controllers/unittest');
+const { unittest, insertUnitTestMarks,getUnitTestIds } = require('../controllers/unittest');
 const { report } = require('../controllers/report');
 const { submitHomework } = require('../controllers/submithomework');
 const { Assignment } = require('../controllers/Assignment'); // Ensure Assignment controller is properly defined
@@ -132,14 +132,24 @@ const { studentAttendance } = require('../controllers/student_absentee_record');
 const { fetchReasonByDate } = require('../controllers/fetchreason');
 const { approvalstatus } = require('../controllers/updateapprovalstatus');
 const { attendencecount } = require('../controllers/attendencecount');
-////parent module
-const { parentdashboard } = require('../controllers/parents/parentdashboard');
+
 const { getsubmitted_homework } = require('../controllers/getsubmittedassignment');
 const { teacher_pending } = require('../controllers/teacher_pending_approval');
 const { viewhomework } = require('../controllers/homeworkview_teacher');
+
 const { classes } = require('../controllers/class');
 const { fetchTeacher } = require('../controllers/fetchteacher');
 
+
+
+////parent module
+const { parentdashboard } = require('../controllers/parents/parentdashboard');
+const { parentlogin } = require('../controllers/parents/parentlogin');
+const { parentprofile} = require('../controllers/parents/parentprofile');
+const { parentstudentlist} = require('../controllers/parents/parentstudentlist');
+const { classes } = require('../controllers/classes');
+const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
+const { addfeedetails } = require('../controllers/addfeedetails');
 
 router.post('/check', checkCollege);
 
@@ -196,7 +206,7 @@ router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReas
 // teacherAPI Endpoints
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin, closeDatabaseConnection);
-router.get('/teacher_dashboard', teacherDashboard);
+router.get('/teacher_dashboard',validateCollegeCode, setupDatabaseConnection, teacherDashboard,  closeDatabaseConnection);
 router.get('/teacher_profile', validateCollegeCode, setupDatabaseConnection, teacherProfile, closeDatabaseConnection);
 router.get('/teacher_classlist', validateCollegeCode, setupDatabaseConnection, teacher_classList, closeDatabaseConnection);
 router.get('/chapter_points', chapterPoints);
@@ -209,7 +219,12 @@ router.get('/teacher_pending', validateCollegeCode, setupDatabaseConnection, tea
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
 router.get('/viewhomework', validateCollegeCode, setupDatabaseConnection, viewhomework, closeDatabaseConnection);
 router.get('/fetchreason', validateCollegeCode, setupDatabaseConnection, fetchReasonByDate, closeDatabaseConnection);
+
 router.get('/fetchclasses', validateCollegeCode, setupDatabaseConnection,classes, closeDatabaseConnection);
+
+router.get('/fetchclasses', validateCollegeCode, setupDatabaseConnection, classes , closeDatabaseConnection);
+
+
 router.post('/insertunitmarks', validateCollegeCode, setupDatabaseConnection, insertUnitTestMarks, closeDatabaseConnection);
 router.get('/fetchteacher', validateCollegeCode, setupDatabaseConnection, fetchTeacher, closeDatabaseConnection);
 router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, createHomework, closeDatabaseConnection);
@@ -217,9 +232,23 @@ router.post('/createHomework', validateCollegeCode, setupDatabaseConnection, cre
 router.post('/approvalstatus', validateCollegeCode, setupDatabaseConnection, approvalstatus, closeDatabaseConnection);
 // fetch attendence count of the current date 
 router.get('/attendencecount', validateCollegeCode, setupDatabaseConnection, attendencecount, closeDatabaseConnection);
+router.post('/addfeedetails', validateCollegeCode, setupDatabaseConnection, addfeedetails, closeDatabaseConnection);
+router.get('/getUnitTestname', getUnitTestIds);
+
+
+
+
+
+
+
 ///////////////////////////
 ////parent modeule api endpoint
-
 router.get('/parentdashboard', validateCollegeCode, setupDatabaseConnection, parentdashboard, closeDatabaseConnection);
+
+router.post('/parentlogin', validateCollegeCode, setupDatabaseConnection, parentlogin, closeDatabaseConnection);
+router.get('/parentprofile', validateCollegeCode, setupDatabaseConnection, parentprofile, closeDatabaseConnection);
+router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, parentstudentlist, closeDatabaseConnection);
+router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
+
 module.exports = router;
 
