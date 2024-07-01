@@ -4,9 +4,18 @@ const bufferToBase64 = (buffer) => {
 };
 
 const teacherDashboard=async (req, res, next) => {
-    try {
-        const sql = `SELECT dashboard_id, dashboard_image, dashboard_title FROM ${process.env.DB_NAME}.teacher_dashboard`;
+    const {teacher_code} = req.query;
 
+    try {
+        let sql = `SELECT dashboard_id, dashboard_image, dashboard_title FROM ${process.env.DB_NAME}.teacher_dashboard `;
+        
+        const temp= 'select classteachers_id from classteachers where teacher_id=?';
+        
+        const [teacherIsPresent] = await req.collegePool.query(temp, [teacher_code]);
+
+        if (teacherIsPresent.length==0) {
+            sql += ` WHERE dashboard_id NOT IN (11, 16)`;
+        }
         const [rows, fields] = await collegesPool.query(sql);
 
         const rowsWithBase64Image = rows.map(row => ({

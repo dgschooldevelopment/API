@@ -55,50 +55,161 @@ const unittest = async (req, res) => {
     }
 };
 
+   
+
+
+const createUnitTestTable = async (req, stand, division, subjectNames) => {
+    const tableName = `unit_test_${stand}_${division}`;
+    const columns = subjectNames.map(subject => `${subject} INT`).join(', ');
+    const createTableQuery = `
+        CREATE TABLE ${tableName} (
+            student_id INT,
+            unit_test_id INT,
+            ${columns},
+            PRIMARY KEY (student_id, unit_test_id)
+        )
+    `;
+    await req.collegePool.query(createTableQuery);
+    return 'Table created successfully';
+};
+
 const insertUnitTestMarks = async (req, res) => {
     try {
-        const { stand, division, student_id, unit_test_id, marks } = req.body;
+        const studentsData = req.body;
+        const { stand, division, unit_test_id, subject_id } = req.query;
+        const tableName = `unit_test_${stand}_${division}`;
 
-        // Validate the presence of required fields
-        if (!stand || !division || !student_id || !unit_test_id || !marks) {
-            return res.status(400).send('Missing required fields');
+        // Query to fetch subject name based on subject code
+        const subjectQuery = `
+            SELECT subject_name 
+            FROM ${process.env.DB_NAME}.Subject
+            WHERE subject_code_prefixed = ? AND stand = ? AND division = ?
+        `;
+        const [subjectResult] = await req.collegePool.query(subjectQuery, [subject_id, stand, division]);
+
+        if (subjectResult.length === 0) {
+            return res.status(404).json({
+                message: `Subject with subject_id ${subject_id} not found`
+            });
         }
 
-        const tableName = `unit_test_${stand}_${division}`;
-        const [existingRows] = await req.collegePool.query(`
-            SELECT * FROM ${tableName} WHERE student_id = ? AND unit_test_id = ? LIMIT 1
-        `, [student_id, unit_test_id]);
+        const subject_name = subjectResult[0].subject_name;
 
-        if (existingRows.length > 0) {
-            // If data already exists, update the existing record instead of inserting
-            const updateQuery = `
-                UPDATE ${tableName} SET ${Object.keys(marks).map(column => `${column} = ?`).join(', ')}
+        // Validate the presence of required fields for each student
+        for (const data of studentsData) {
+            const { student_id, marks } = data;
+            if (!student_id || marks === undefined || isNaN(marks)) {
+                return res.status(400).json({ message: `Invalid data format for student ${student_id}` });
+            }
+        }
+
+        // Check if the table exists for the given stand and division
+        const tableExistsQuery = `SHOW TABLES LIKE '${tableName}'`;
+        const [tableExistsResult] = await req.collegePool.query(tableExistsQuery);
+
+        if (tableExistsResult.length === 0) {
+            // Table does not exist, create it
+            const createTableMessage = await createUnitTestTable(req, stand, division, [subject_name]);
+            if (createTableMessage !== 'Table created successfully') {
+                return res.status(500).json({ message: createTableMessage });
+            }
+        }
+
+        // Initialize response object
+        const response = {
+            added: [],
+            existing: []
+        };
+
+        // Loop through each student's data and process insertion
+        for (const data of studentsData) {
+            const { student_id, marks } = data;
+
+            // Check if data already exists for student_id and unit_test_id
+            const existingDataQuery = `
+                SELECT ${subject_name} FROM ${tableName} 
                 WHERE student_id = ? AND unit_test_id = ?
             `;
-            const updateValues = [...Object.values(marks), student_id, unit_test_id];
-            await req.collegePool.query(updateQuery, updateValues);
-            return res.status(200).send(`Data updated successfully in ${tableName}`);
+            const [existingRows] = await req.collegePool.query(existingDataQuery, [student_id, unit_test_id]);
+
+            if (existingRows.length === 0) {
+                // Insert new record if student_id and unit_test_id do not exist
+                const insertQuery = `
+                    INSERT INTO ${tableName} (student_id, unit_test_id, ${subject_name})
+                    VALUES (?, ?, ?)
+                `;
+                const insertValues = [student_id, unit_test_id, marks];
+                await req.collegePool.query(insertQuery, insertValues);
+                console.log(`Data inserted successfully for student ${student_id} in ${tableName}`);
+                response.added.push(student_id);
+            } else if (existingRows[0][subject_name] === null) {
+                // Update record if the subject column is null
+                const updateQuery = `
+                    UPDATE ${tableName}
+                    SET ${subject_name} = ?
+                    WHERE student_id = ? AND unit_test_id = ?
+                `;
+                const updateValues = [marks, student_id, unit_test_id];
+                await req.collegePool.query(updateQuery, updateValues);
+                console.log(`Data updated successfully for student ${student_id} in ${tableName}`);
+                response.added.push(student_id);
+            } else {
+                // Record already exists and is not null
+                response.existing.push(student_id);
+            }
+        }
+        if (response.added.length > 0) {
+            console.log(`Inserted/Updated data for students: ${response.added.join(', ')}`);
+        }
+        if (response.existing.length > 0) {
+            console.log(`Data already exists for students: ${response.existing.join(', ')}`);
+        }
+        // Prepare final response message
+        let message = '';
+        if (response.added.length > 0) {
+            message += ` Added/Updated data for students`;
+          // ` inserted data for students: ${response.added.join(', ')}.`
+        }
+        if (response.existing.length > 0) {
+           message += ` Data already exists for students`;
+          // ` Data already exists for students: ${response.existing.join(', ')}.`;
         }
 
-        
-        // Construct the columns and values dynamically
-        const columns = Object.keys(marks).join(', ');
-        const values = Object.values(marks);
+        return res.status(200).json({ message });
 
-        const insertQuery = `
-            INSERT INTO ${tableName} (student_id, unit_test_id, ${columns})
-            VALUES (?, ?, ${values.map(() => '?').join(', ')})
+    } catch (err) {
+        console.error('Error occurred:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+const getUnitTestIds = async (req, res) => {
+    
+
+    try {
+        const query = `
+            SELECT unit_test_id,unit_test_name
+            FROM ${process.env.DB_NAME}.SelectUnitTest
         `;
+        const [results] = await collegesPool.query(query);
 
-        await req.collegePool.query(insertQuery, [student_id, unit_test_id, ...values]);
-        return res.status(200).send(`Data inserted successfully into ${tableName}`);
+        if (results.length > 0) {
+            return res.status(200).json(results);
+        } else {
+            return res.status(404).json({
+                message: 'No unit test IDs found'
+            });
+        }
     } catch (err) {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
     }
 };
 
+
 module.exports = {
     unittest,
-    insertUnitTestMarks
+    insertUnitTestMarks,
+    getUnitTestIds
 };
