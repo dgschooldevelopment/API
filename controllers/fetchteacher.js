@@ -9,7 +9,7 @@ const fetchTeacher = async (req, res) => {
 
     try {
         const [subjects] = await collegesPool.query(
-            'SELECT subject_code_prefixed FROM Subject WHERE stand = ? AND division = ?',
+            'SELECT subject_code_prefixed, subject_name FROM Subject WHERE stand = ? AND division = ?',
             [stand, division]
         );
 
@@ -18,6 +18,11 @@ const fetchTeacher = async (req, res) => {
         if (subjects.length === 0) {
             return res.status(404).json({ message: 'No subjects found for the given standard and division' });
         }
+
+        const subjectMap = subjects.reduce((acc, subject) => {
+            acc[subject.subject_code_prefixed] = subject.subject_name;
+            return acc;
+        }, {});
 
         const [teacherCodes] = await req.collegePool.query(
             'SELECT teacher_code, subject_code FROM subject_teacher WHERE subject_code IN (?)',
@@ -48,7 +53,7 @@ const fetchTeacher = async (req, res) => {
             return {
                 ...teacher,
                 teacher_profile: base64ProfileImg,
-                subject_code_prefixed: subjectCodeMap[teacher.teacher_code]
+                subject_name: subjectMap[subjectCodeMap[teacher.teacher_code]]
             };
         });
 
