@@ -1,7 +1,7 @@
 const { collegePool } = require('../config/dbconfig');
 
 const studentList = async (req, res) => {
-  const { b, division } = req.query;
+  const { stand, division } = req.query;
 
   try {
     const query = `
