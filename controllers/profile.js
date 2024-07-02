@@ -17,6 +17,7 @@ const profile = async (req, res) => {
         s.division, 
         s.stud_dob AS dob, 
         s.mobile, 
+        s.email,
         s.profile_img AS profilephoto
       FROM 
         Student s
@@ -38,6 +39,7 @@ const profile = async (req, res) => {
       division: profile.division,
       dob: profile.dob,
       mobile: profile.mobile,
+      email:profile.email,
       profilephoto: profile.profilephoto ? profile.profilephoto.toString('base64') : null
     };
 
