@@ -33,7 +33,7 @@ const evolutionhomework = async (req, res, next) => {
             FROM homework_submitted hs
             JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
             JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            WHERE hs.student_id = ? AND hs.subject_id = ? AND hs.approval_status IS NULL
+            WHERE hs.student_id = ? AND hs.subject_id = ? AND (hs.approval_status IS NULL)
         `,
         studentName: `
             SELECT Name
@@ -73,7 +73,28 @@ const evolutionhomework = async (req, res, next) => {
             pendingHomework: pendingHomeworkResults[0].count
         };
 
-        res.json(response);
+        const total = response.totalHomework;
+        const approved = response.approvedHomework;
+        const pending = response.pendingHomework;
+        const incomplete = total - (approved + pending);
+
+        console.log(incomplete,pending,approved,total);
+        console.log(response);
+        
+        const ApprovedPercentage = (approved / total) * 100;
+        const PendingPercentage = (pending / total) * 100;
+        const incompletePercentage = (incomplete / total) * 100;
+
+
+        const perRes = {
+            ApprovedPercentage,
+            PendingPercentage,
+            incompletePercentage
+        }
+
+
+        res.json(perRes);
+
     } catch (error) {
         console.error('Database query failed:', error);
         res.status(500).json({ error: 'Database query failed' });
@@ -197,3 +218,6 @@ const evolutionhomework = async (req, res, next) => {
 
 module.exports = { evolutionhomework };
 */
+
+module.exports = { evolutionhomework };
+
