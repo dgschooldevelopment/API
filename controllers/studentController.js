@@ -155,7 +155,7 @@ const loginStudent = async (req, res) => {
                 s.password, 
                 c.college_code,
                 s.profile_img 
-             
+             s.email
         
             FROM 
              Student s
