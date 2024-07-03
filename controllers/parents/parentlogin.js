@@ -24,7 +24,9 @@ const parentlogin = async (req, res) => {
               SELECT 
               p.parent_id,
                   p.parentname,
-                                   
+                   p.address,
+                   p.pmobile_no  ,
+                   p.profilephoto,        
                   p.password
               FROM Parents p
                            WHERE p.parent_id = ?
@@ -43,17 +45,17 @@ const parentlogin = async (req, res) => {
         }
 
         // Convert profilephoto to base64
-       /* let base64ProfilePhoto = null;
+       let base64ProfilePhoto = null;
         if (parent.profilephoto) {
             base64ProfilePhoto = parent.profilephoto.toString('base64').replace(/\n/g, '');
         }
-*/
+
         const parentData = { 
             parent_id: parent.parent_id,
             parentname: parent.parentname,
-           // pmobile_no: parent.pmobile_no,
-           // profilephoto: base64ProfilePhoto,
-            //address: parent.address,
+            pmobile_no: parent.pmobile_no,
+            profilephoto: base64ProfilePhoto,
+            address: parent.address,
         };
 
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
