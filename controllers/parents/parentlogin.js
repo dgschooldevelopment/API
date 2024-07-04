@@ -27,8 +27,11 @@ const parentlogin = async (req, res) => {
                    p.address,
                    p.pmobile_no  ,
                    p.profilephoto,        
-                  p.password
+                  p.password,
+                  c.college_code
               FROM Parents p
+                JOIN 
+        ${process.env.DB_NAME}.College c ON p.collegeId= c.collegeID
                            WHERE p.parent_id = ?
                 `;
         const [parentDetails] = await req.collegePool.query(parentQuery, [parent_id]);
@@ -56,6 +59,7 @@ const parentlogin = async (req, res) => {
             pmobile_no: parent.pmobile_no,
             profilephoto: base64ProfilePhoto,
             address: parent.address,
+            college_code:parent.college_code
         };
 
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
