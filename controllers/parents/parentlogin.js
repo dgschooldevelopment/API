@@ -4,33 +4,23 @@ const parentlogin = async (req, res) => {
     const { parent_id, password } = req.body;
 
     if (!parent_id || !password) {
-        return res.status(400).json({ error: 'Parent ID, password, and college code are required parameters' });
+        return res.status(400).json({ error: 'Parent ID and password are required parameters' });
     }
 
     try {
-        /*const parentQuery = `
+        const parentQuery = `
             SELECT 
-            p.parent_id,
+                p.parent_id,
                 p.parentname,
+                p.address,
                 p.pmobile_no,
                 p.profilephoto,
-                p.address,
-                p.password
+                p.password,
+                c.college_code
             FROM Parents p
-            JOIN Student s ON p.parent_id = s.parent_id
+            JOIN ${process.env.DB_NAME}.College c ON p.collegeId = c.collegeId
             WHERE p.parent_id = ?
-              `;*/
-              const parentQuery = `
-              SELECT 
-              p.parent_id,
-                  p.parentname,
-                   p.address,
-                   p.pmobile_no  ,
-                   p.profilephoto,        
-                  p.password
-              FROM Parents p
-                           WHERE p.parent_id = ?
-                `;
+        `;
         const [parentDetails] = await req.collegePool.query(parentQuery, [parent_id]);
 
         if (parentDetails.length === 0) {
@@ -45,7 +35,7 @@ const parentlogin = async (req, res) => {
         }
 
         // Convert profilephoto to base64
-       let base64ProfilePhoto = null;
+        let base64ProfilePhoto = null;
         if (parent.profilephoto) {
             base64ProfilePhoto = parent.profilephoto.toString('base64').replace(/\n/g, '');
         }
@@ -56,6 +46,7 @@ const parentlogin = async (req, res) => {
             pmobile_no: parent.pmobile_no,
             profilephoto: base64ProfilePhoto,
             address: parent.address,
+            college_code: parent.college_code
         };
 
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
@@ -65,8 +56,6 @@ const parentlogin = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
-
-
 
 module.exports = {
     parentlogin
