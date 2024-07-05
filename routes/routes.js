@@ -151,6 +151,7 @@ const { classes } = require('../controllers/classes');
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
 
+const { fetchNotices } = require('../controllers/parents/parentnotice');
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -253,6 +254,6 @@ router.post('/parentlogin', validateCollegeCode, setupDatabaseConnection, parent
 router.get('/parentprofile', validateCollegeCode, setupDatabaseConnection, parentprofile, closeDatabaseConnection);
 router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, parentstudentlist, closeDatabaseConnection);
 router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
-
+router.get('/notices',  validateCollegeCode, setupDatabaseConnection,fetchNotices, closeDatabaseConnection);
 module.exports = router;
 
