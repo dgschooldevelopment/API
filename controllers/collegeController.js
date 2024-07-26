@@ -30,6 +30,7 @@ const checkCollege = async (req, res) => {
 
 
 
+        
         if (results.length === 0) {
             return res.status(404).json({ error: 'College code not found' });
         }
