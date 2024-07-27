@@ -264,9 +264,9 @@ router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotice
 
 
 ////////////////////////////////chat api////
-router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection, StudentListchat,authenticateJWT,closeDatabaseConnection);
+router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection,authenticateTeacher, StudentListchat,authenticateJWT,closeDatabaseConnection);
 router.post('/send-message',validateCollegeCode, setupDatabaseConnection,authenticateTeacher, sendMessage,closeDatabaseConnection);
 router.get('/messageHistory',validateCollegeCode, setupDatabaseConnection, getMessageHistory,closeDatabaseConnection);
-router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection, TeacherListChat,closeDatabaseConnection);
+router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection,TeacherListChat,closeDatabaseConnection);
 module.exports = router;
 

@@ -41,15 +41,12 @@
 //     StudentList
 // };
 
-const { collegePool } = require('../config/dbconfig'); // Ensure the path is correct
+const { collegesPool } = require('../config/dbconfig');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const StudentListchat = async (req, res) => {
-    const { teacher_code } = req.query;
-
-    // Validate that teacher_code is provided
-    if (!teacher_code) {
-        return res.status(400).json({ error: 'Teacher code is required' });
-    }
+    const teacher_code = req.teacherCode; // Extract teacher_code from middleware
 
     try {
         const studentSql = `
