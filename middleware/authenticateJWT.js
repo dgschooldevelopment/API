@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const authenticateJWT =  (req, res, next) => {
+const authenticateJWT = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
+        console.log('No token provided');
         return res.status(401).json({ error: 'No token provided' });
     }
 
@@ -12,6 +13,7 @@ const authenticateJWT =  (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
+            console.log('Failed to authenticate token:', err);
             return res.status(401).json({ error: 'Failed to authenticate token' });
         }
 
@@ -24,6 +26,7 @@ const authenticateTeacher = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
+        console.log('No token provided');
         return res.status(401).json({ error: 'No token provided' });
     }
 
@@ -31,6 +34,7 @@ const authenticateTeacher = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
+            console.log('Failed to authenticate token:', err);
             return res.status(401).json({ error: 'Failed to authenticate token' });
         }
 
