@@ -157,6 +157,9 @@ const { authenticateJWT, authenticateTeacher} = require('../middleware/authentic
 const { sendMessage,getMessageHistory } = require('../controllers/chat/chatController');
 const { StudentListchat } = require('../controllers/StudentList');
 const { TeacherListChat } = require('../controllers/chat/Teacherlist');
+
+const { fetchNotices } = require('../controllers/parents/parentnotice');
+
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -259,6 +262,7 @@ router.post('/parentlogin', validateCollegeCode, setupDatabaseConnection, parent
 router.get('/parentprofile', validateCollegeCode, setupDatabaseConnection, parentprofile, closeDatabaseConnection);
 router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, parentstudentlist, closeDatabaseConnection);
 router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
+
 router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotices, closeDatabaseConnection);
   
 
@@ -268,5 +272,7 @@ router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection, St
 router.post('/send-message',validateCollegeCode, setupDatabaseConnection,authenticateTeacher, sendMessage,closeDatabaseConnection);
 router.get('/messageHistory',validateCollegeCode, setupDatabaseConnection, getMessageHistory,closeDatabaseConnection);
 router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection, TeacherListChat,closeDatabaseConnection);
+
+
 module.exports = router;
 
