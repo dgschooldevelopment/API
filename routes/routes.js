@@ -141,17 +141,25 @@ const { viewhomework } = require('../controllers/homeworkview_teacher');
 const { fetchTeacher } = require('../controllers/fetchteacher');
 
 
-
 ////parent module
 const { parentdashboard } = require('../controllers/parents/parentdashboard');
-const { parentlogin } = require('../controllers/parents/parentlogin');
 const { parentprofile} = require('../controllers/parents/parentprofile');
+const { parentlogin } = require('../controllers/parents/parentlogin');
 const { parentstudentlist} = require('../controllers/parents/parentstudentlist');
 const { classes } = require('../controllers/classes');
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
+const { fetchNotices } = require('../controllers/parents/parentnotice');
+
+
+//////////chat api//////////
+const { authenticateJWT, authenticateTeacher} = require('../middleware/authenticateJWT');
+const { sendMessage,getMessageHistory } = require('../controllers/chat/chatController');
+const { StudentListchat } = require('../controllers/StudentList');
+const { TeacherListChat } = require('../controllers/chat/Teacherlist');
 
 const { fetchNotices } = require('../controllers/parents/parentnotice');
+
 router.post('/check', checkCollege);
 
 // Endpoint for student login
@@ -204,6 +212,7 @@ router.post('/insert', validateCollegeCode, setupDatabaseConnection, insertAtten
 router.get('/fetchattendance', validateCollegeCode, setupDatabaseConnection, fetchStudentAttendance, closeDatabaseConnection);
 router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReason, closeDatabaseConnection);
 
+router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReason, closeDatabaseConnection);
 
 
 
@@ -245,7 +254,6 @@ router.get('/getUnitTestname', getUnitTestIds);
 
 
 
-
 ///////////////////////////
 ////parent modeule api endpoint
 router.get('/parentdashboard', validateCollegeCode, setupDatabaseConnection, parentdashboard, closeDatabaseConnection);
@@ -254,6 +262,17 @@ router.post('/parentlogin', validateCollegeCode, setupDatabaseConnection, parent
 router.get('/parentprofile', validateCollegeCode, setupDatabaseConnection, parentprofile, closeDatabaseConnection);
 router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, parentstudentlist, closeDatabaseConnection);
 router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
-router.get('/notices',  validateCollegeCode, setupDatabaseConnection,fetchNotices, closeDatabaseConnection);
+
+router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotices, closeDatabaseConnection);
+  
+
+
+////////////////////////////////chat api////
+router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection, StudentListchat,authenticateJWT,closeDatabaseConnection);
+router.post('/send-message',validateCollegeCode, setupDatabaseConnection,authenticateTeacher, sendMessage,closeDatabaseConnection);
+router.get('/messageHistory',validateCollegeCode, setupDatabaseConnection, getMessageHistory,closeDatabaseConnection);
+router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection, TeacherListChat,closeDatabaseConnection);
+
+
 module.exports = router;
 
