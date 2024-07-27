@@ -61,6 +61,10 @@
 //     parentlogin
 // };
 const { collegesPool } = require('../../config/dbconfig');
+const jwt = require('jsonwebtoken');
+require('dotenv').config(); // Load environment variables
+
+const JWT_SECRET = process.env.JWT_SECRET; // Correctly access JWT_SECRET from environment variables
 
 const parentlogin = async (req, res) => {
     const { parent_id, password, college_code, fcm_token } = req.body;
@@ -103,6 +107,13 @@ const parentlogin = async (req, res) => {
             await req.collegePool.query('UPDATE Parents SET fcm_token = ? WHERE parent_id = ?', [fcm_token, parent_id]);
         }
 
+        // Generate JWT token
+        const token = jwt.sign(
+            { parent_id: parent.parent_id, college_code: parent.college_code },
+            JWT_SECRET,
+            { expiresIn: '1h' } // Token expiration time
+        );
+
         let base64ProfilePhoto = null;
         if (parent.profilephoto) {
             base64ProfilePhoto = parent.profilephoto.toString('base64').replace(/\n/g, '');
@@ -116,7 +127,7 @@ const parentlogin = async (req, res) => {
             address: parent.address
         };
 
-        return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
+        return res.status(200).json({ success: true, message: 'Successfully logged in', token, data: parentData });
     } catch (error) {
         console.error('Error executing query:', error);
         return res.status(500).json({ error: 'Internal server error' });
