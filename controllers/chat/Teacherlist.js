@@ -1,18 +1,19 @@
-const { collegePool } = require('../../config/dbconfig'); // Ensure the path is correct
+const { collegePool } = require('../../config/dbconfig');
+const jwt = require('jsonwebtoken');
 
 const TeacherListChat = async (req, res) => {
-    const { student_id } = req.query;
-
-    // Validate that student_id is provided
-    if (!student_id) {
-        return res.status(400).json({ error: 'Student ID is required' });
-    }
-
     try {
+        const student_id = req.studentId; // Ensure this matches the key set in the middleware
+
+        if (!student_id) {
+            return res.status(400).json({ error: 'Invalid token or student ID not found' });
+        }
+
         const teacherSql = `
             SELECT 
-                t.teacher_code, 
-                t.Name,  t.profile_img 
+                t.teacher_code,
+                t.teacher_profile AS profile_img,
+                t.tname
             FROM 
                 teacher t
             JOIN 
@@ -25,16 +26,20 @@ const TeacherListChat = async (req, res) => {
 
         const [teachers] = await req.collegePool.query(teacherSql, [student_id]);
 
-        // Convert profile_img to base64
-        teachers.forEach(teacher => {
+        // Convert profile images to base64 if present
+        const teachersWithBase64Images = teachers.map(teacher => {
             if (teacher.profile_img) {
                 teacher.profile_img = teacher.profile_img.toString('base64').replace(/\n/g, '');
             }
+            return teacher;
         });
 
-        return res.status(200).json({ success: true, data: teachers });
+        return res.status(200).json({ success: true, data: teachersWithBase64Images });
     } catch (error) {
         console.error('Error fetching teachers for student:', error);
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
         return res.status(500).json({ error: 'Internal server error' });
     }
 };

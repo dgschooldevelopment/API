@@ -76,7 +76,6 @@
 //     loginStudent
 // };
 
-
 const jwt = require('jsonwebtoken');
 
 const loginStudent = async (req, res) => {
@@ -115,6 +114,7 @@ const loginStudent = async (req, res) => {
 
         const student = studentResults[0];
 
+        // Compare plain text password directly
         if (student.password !== password) {
             return res.status(401).json({ error: 'Invalid password' });
         }
@@ -134,10 +134,14 @@ const loginStudent = async (req, res) => {
         };
 
         const token = jwt.sign({ studentId: student.studentid }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
         return res.status(200).json({ success: true, message: 'Successfully logged in', data: studentData, token });
     } catch (error) {
         console.error('Error executing query:', error);
+
+        if (error.code === 'ECONNRESET') {
+            console.error('Database connection was reset.');
+        }
+
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -145,4 +149,3 @@ const loginStudent = async (req, res) => {
 module.exports = {
     loginStudent
 };
-
