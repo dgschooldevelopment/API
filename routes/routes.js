@@ -158,7 +158,7 @@ const { sendMessage,getMessageHistory } = require('../controllers/chat/chatContr
 const { StudentListchat } = require('../controllers/StudentList');
 const { TeacherListChat } = require('../controllers/chat/Teacherlist');
 
-const { fetchNotices } = require('../controllers/parents/parentnotice');
+// const { fetchNotices } = require('../controllers/parents/parentnotice');
 
 router.post('/check', checkCollege);
 
