@@ -67,7 +67,7 @@ require('dotenv').config(); // Load environment variables
 const JWT_SECRET = process.env.JWT_SECRET; // Correctly access JWT_SECRET from environment variables
 
 const parentlogin = async (req, res) => {
-    const { parent_id, password, college_code, fcm_token } = req.body;
+    const { parent_id, password, fcm_token } = req.body;
 
     if (!parent_id || !password || !college_code) {
         return res.status(400).json({ error: 'Parent ID, password, and college code are required parameters' });
