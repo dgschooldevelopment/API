@@ -34,6 +34,7 @@ const collegesPool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    JWT_SECRET :process.env.JWT_SECRET,
     connectTimeout: 10000 
 });
 
