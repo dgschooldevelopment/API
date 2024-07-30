@@ -98,7 +98,8 @@ router.get('/students', validateCollegeCode, setupDatabaseConnection, studentLis
 
 
 module.exports = router;
-*/
+
+
 const express = require('express');
 const router = express.Router();
 const { validateCollegeCode } = require('../middleware/validation');
