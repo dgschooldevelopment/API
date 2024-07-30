@@ -14,6 +14,8 @@ const sendNotification = async (req, res) => {
     }
 
     const messagePayload = {
+        notification: { 
+
         notification: {
             title: 'Notification Title',
             body: message,
