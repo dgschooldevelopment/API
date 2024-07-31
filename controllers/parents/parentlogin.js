@@ -173,7 +173,15 @@ const parentlogin = async (req, res) => {
             address: parent.address
         };
 
-        return res.status(200).json({ success: true, message: 'Successfully logged in', token, data: parentData });
+        // Set JWT token in cookies
+        res.cookie('auth_token', token, {
+            httpOnly: true, // Helps prevent XSS attacks
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            sameSite: 'Strict', // Helps prevent CSRF attacks
+            maxAge: 3600000 // 1 hour
+        });
+
+        return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
     } catch (error) {
         console.error('Error executing query:', error);
         return res.status(500).json({ error: 'Internal server error' });

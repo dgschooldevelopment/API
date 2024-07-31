@@ -346,6 +346,8 @@ router.post('/add-reason', validateCollegeCode, setupDatabaseConnection, addReas
 
 
 
+
+
 // teacherAPI Endpoints
 
 router.post('/loginteacher', validateCollegeCode, setupDatabaseConnection, teacherLogin, closeDatabaseConnection);
@@ -399,9 +401,9 @@ router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotice
 
 
 ////////////////////////////////chat api////
-router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection,authenticateTeacher, StudentListchat,closeDatabaseConnection);
-router.post('/send-message',validateCollegeCode, setupDatabaseConnection,authenticateTeacher, sendMessage,closeDatabaseConnection);
-router.get('/messageHistory',validateCollegeCode, setupDatabaseConnection, getMessageHistory,closeDatabaseConnection);
+ router.get('/studentslistchat', validateCollegeCode, setupDatabaseConnection,authenticateTeacher, StudentListchat,closeDatabaseConnection);
+// // router.post('/send-message',validateCollegeCode, setupDatabaseConnection,authenticateTeacher, sendMessage,closeDatabaseConnection);
+// router.get('/messageHistory',validateCollegeCode, setupDatabaseConnection, getMessageHistory,closeDatabaseConnection);
 router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection, authenticateJWT,TeacherListChat,closeDatabaseConnection);
 
 // router.get('/teacherlist',validateCollegeCode, setupDatabaseConnection, TeacherListChat,closeDatabaseConnection);

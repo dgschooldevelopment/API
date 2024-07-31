@@ -147,6 +147,7 @@ const loginStudent = async (req, res) => {
 // };
 
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const loginStudent = async (req, res) => {
     const { studentId, password, fcm_token } = req.body;
