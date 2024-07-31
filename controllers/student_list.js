@@ -1,13 +1,11 @@
 const { collegePool } = require('../config/dbconfig');
 
 const studentList = async (req, res) => {
-  const { stand, division } = req.query;
+  const { std, division } = req.query;
 
   try {
     const query = `
 
-
-      SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
 
        SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
 
@@ -16,7 +14,7 @@ const studentList = async (req, res) => {
       WHERE s.std = ? AND s.division = ?
     `;
 
-    const [rows] = await req.collegePool.query(query, [stand, division]);
+    const [rows] = await req.collegePool.query(query, [std, division]);
 
     const studentData = rows.map(student => {
       let base64ProfileImg = null;
@@ -40,6 +38,4 @@ const studentList = async (req, res) => {
 
 module.exports = {
   studentList
-
-};
 };
