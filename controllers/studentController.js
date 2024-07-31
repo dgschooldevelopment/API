@@ -77,6 +77,7 @@
 // };
 
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const loginStudent = async (req, res) => {
     const { studentId, password, fcm_token } = req.body;
@@ -133,8 +134,18 @@ const loginStudent = async (req, res) => {
             profile_img: base64ProfileImg 
         };
 
+        // Generate JWT token
         const token = jwt.sign({ studentId: student.studentid }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ success: true, message: 'Successfully logged in', data: studentData, token });
+
+        // Set JWT token in cookies
+        res.cookie('auth_token', token, {
+            httpOnly: true, // Helps prevent XSS attacks
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            sameSite: 'Strict', // Helps prevent CSRF attacks
+            maxAge: 3600000 // 1 hour
+        });
+
+        return res.status(200).json({ success: true, message: 'Successfully logged in', data: studentData });
     } catch (error) {
         console.error('Error executing query:', error);
 

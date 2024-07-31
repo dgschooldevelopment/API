@@ -65,6 +65,8 @@
 // };
 
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 const teacherLogin = async (req, res) => {
     const { teacher_code, tpassword, fcm_token } = req.body;
 
@@ -121,15 +123,23 @@ const teacherLogin = async (req, res) => {
             subjects: subjects.map(subject => subject.subject_name) 
         };
 
+        // Generate JWT token
         const token = jwt.sign({ teacherCode: teacher.teacher_code }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        return res.status(200).json({ success: true, message: 'Successfully logged in', data: teacherData, token });
+        // Set JWT token in cookies
+        res.cookie('auth_token', token, {
+            httpOnly: true, // Helps prevent XSS attacks
+            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
+            sameSite: 'Strict', // Helps prevent CSRF attacks
+            maxAge: 3600000 // 1 hour
+        });
+
+        return res.status(200).json({ success: true, message: 'Successfully logged in', data: teacherData });
     } catch (error) {
         console.error('Error executing query:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 
 module.exports = {
     teacherLogin
