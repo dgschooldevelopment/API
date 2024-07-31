@@ -29,8 +29,6 @@ const checkCollege = async (req, res) => {
         const [results] = await collegesPool.query(sql, [college_code]);
 
 
-
-        
         if (results.length === 0) {
             return res.status(404).json({ error: 'College code not found' });
         }

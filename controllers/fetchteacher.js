@@ -9,6 +9,7 @@ const fetchTeacher = async (req, res) => {
 
     try {
         const [subjects] = await collegesPool.query(
+            'SELECT subject_code_prefixed FROM Subject WHERE stand = ? AND division = ?',
             'SELECT subject_code_prefixed, subject_name FROM Subject WHERE stand = ? AND division = ?',
             [stand, division]
         );
@@ -19,6 +20,8 @@ const fetchTeacher = async (req, res) => {
             return res.status(404).json({ message: 'No subjects found for the given standard and division' });
         }
 
+        const [teacherCodes] = await req.collegePool.query(
+            'SELECT teacher_code FROM subject_teacher WHERE subject_code IN (?)',
         const subjectMap = subjects.reduce((acc, subject) => {
             acc[subject.subject_code_prefixed] = subject.subject_name;
             return acc;
@@ -34,6 +37,29 @@ const fetchTeacher = async (req, res) => {
         }
 
         const teacherCodesList = teacherCodes.map(tc => tc.teacher_code);
+
+        const [teachers] = await req.collegePool.query(
+            'SELECT tname,teacher_code,teacher_profile FROM teacher WHERE teacher_code IN (?)',
+            [teacherCodesList]
+        );
+
+
+        const teachersData = teachers.map(teacher => {
+            let base64ProfileImg = null;
+            if (teacher.teacher_profile) {
+              base64ProfileImg = teacher.teacher_profile.toString('base64').replace(/\n/g, '');
+            }
+      
+            return {
+             ...teacher,
+             teacher_profile: base64ProfileImg
+            };
+          });
+
+        res.json(teachersData);
+
+
+
         const subjectCodeMap = teacherCodes.reduce((acc, tc) => {
             acc[tc.teacher_code] = tc.subject_code;
             return acc;
