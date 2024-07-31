@@ -7,8 +7,6 @@ const studentList = async (req, res) => {
     const query = `
 
 
-      SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
-
        SELECT s.studentid, s.roll_no, s.std, s.Name, s.division, s.profile_img, c.college_code
 
       FROM Student s
@@ -40,6 +38,4 @@ const studentList = async (req, res) => {
 
 module.exports = {
   studentList
-
-};
 };
