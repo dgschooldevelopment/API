@@ -400,7 +400,7 @@ router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, pa
 
 
 router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotices, closeDatabaseConnection);
-router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postnotice, close)
+router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postnotice, closeDatabaseConnection)
 
 
 ////////////////////////////////chat api////
