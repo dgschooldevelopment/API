@@ -286,6 +286,7 @@ const { parentstudentlist} = require('../controllers/parents/parentstudentlist')
 const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
 const { fetchNotices } = require('../controllers/parents/parentnotice');
+const { postnotice } = require('../controllers/notice');
 
 router.post('/check', checkCollege);
 
@@ -399,7 +400,7 @@ router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, pa
 
 
 router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotices, closeDatabaseConnection);
-  
+router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postnotice, close)
 
 
 ////////////////////////////////chat api////
