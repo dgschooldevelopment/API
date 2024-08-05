@@ -17,4 +17,5 @@ const postnotice = async (req, res) => {
     }
   };
   
+  
   module.exports = { postnotice };
