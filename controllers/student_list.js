@@ -11,7 +11,7 @@ const studentList = async (req, res) => {
 
       FROM Student s
       JOIN ${process.env.DB_NAME}.College c ON s.college_id = c.collegeID
-      WHERE s. = ? AND s.division = ?
+      WHERE s.std = ? AND s.division = ?
     `;
 
     const [rows] = await req.collegePool.query(query, [stand, division]);
