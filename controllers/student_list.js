@@ -1,7 +1,7 @@
 const { collegePool } = require('../config/dbconfig');
 
 const studentList = async (req, res) => {
-  const { std, division } = req.query;
+  const { stand, division } = req.query;
 
   try {
     const query = `
@@ -11,10 +11,10 @@ const studentList = async (req, res) => {
 
       FROM Student s
       JOIN ${process.env.DB_NAME}.College c ON s.college_id = c.collegeID
-      WHERE s.std = ? AND s.division = ?
+      WHERE s. = ? AND s.division = ?
     `;
 
-    const [rows] = await req.collegePool.query(query, [std, division]);
+    const [rows] = await req.collegePool.query(query, [stand, division]);
 
     const studentData = rows.map(student => {
       let base64ProfileImg = null;
