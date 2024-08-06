@@ -287,7 +287,7 @@ const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
 const { fetchNotices } = require('../controllers/parents/parentnotice');
 const { postnotice } = require('../controllers/notice');
-const { fetchFee } = require('../controllers/fetchFee');
+const { fetchFee } = require('../controllers/fetchfee');
 
 router.post('/check', checkCollege);
 
