@@ -22,6 +22,7 @@ const fetchFee = async (req, res) => {
 
         // Query to get the total fee paid by fee type with description
         const totalFeeQuery = `
+
             SELECT tf.fee_type, SUM(ft.fee_paid), tf.fee_amount AS total_fee_paid
             FROM fee_transactions ft
             JOIN types_of_fee tf ON ft.type_of_fee = tf.fee_id
@@ -42,4 +43,6 @@ const fetchFee = async (req, res) => {
     }
 };
 
+
 module.exports = { fetchFee };
+
