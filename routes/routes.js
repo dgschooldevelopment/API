@@ -418,4 +418,3 @@ router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postno
 
 
 module.exports = router;
-
