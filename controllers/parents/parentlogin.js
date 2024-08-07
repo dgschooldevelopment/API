@@ -69,7 +69,7 @@ const JWT_SECRET = process.env.JWT_SECRET; // Correctly access JWT_SECRET from e
 const parentlogin = async (req, res) => {
     const { parent_id, password, college_code, fcm_token } = req.body;
 
-    if (!parent_id || !password || !college_code) {
+    if (!parent_id || !password ) {
         return res.status(400).json({ error: 'Parent ID, password, and college code are required parameters' });
     }
 
