@@ -29,12 +29,12 @@ const evolutionhomework = async (req, res, next) => {
             WHERE hs.student_id = ? AND hs.subject_id = ? AND hs.approval_status = 1
         `,
         pendingHomework: `
-            SELECT COUNT(*) as count
-            FROM homework_submitted hs
-            JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
-            JOIN ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
-            WHERE hs.student_id = ? AND hs.subject_id = ? AND (hs.approval_status IS NULL)
-        `,
+ SELECT COUNT(*) as count
+FROM homework_submitted hs
+JOIN homework_pending hp ON hp.homeworkp_id = hs.homeworkpending_id
+JOIN colleges.Subject s ON hs.subject_id = s.subject_code_prefixed
+WHERE (hs.student_id = 'S10A16' AND hs.subject_id = 'S1' AND hs.approval_status = 0)
+OR (hs.student_id = ? AND hs.subject_id = ? AND (hs.approval_status IS NULL)) `,
         studentName: `
             SELECT Name
             FROM Student
@@ -89,7 +89,8 @@ const evolutionhomework = async (req, res, next) => {
         const perRes = {
             ApprovedPercentage,
             PendingPercentage,
-            incompletePercentage
+            incompletePercentage,
+            studentName
         }
 
 

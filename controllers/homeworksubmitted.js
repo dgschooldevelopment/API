@@ -17,6 +17,7 @@ const homeworksubmitted = async (req, res) => {
             hs.homeworkpending_id,
             hs.subject_id,
             hs.student_id AS studentid,
+            st.Name AS student_name,
             hs.date_of_given_submitted,
             hs.description AS submitted_description,
             hp.date_of_given AS date_of_to_submit,
@@ -34,6 +35,9 @@ const homeworksubmitted = async (req, res) => {
         ${process.env.DB_NAME}.Subject s ON hs.subject_id = s.subject_code_prefixed
         LEFT JOIN
            image_submit isub ON hs.submitted_id = isub.homeworksubmitted_id
+
+        JOIN 
+            Student st ON hs.student_id = st.studentid
         WHERE
             hs.student_id = ? AND
             hs.subject_id = ? /*AND
@@ -62,6 +66,7 @@ const homeworksubmitted = async (req, res) => {
                     homeworkpending_id: row.homeworkpending_id,
                     subject_id: row.subject_id,
                     studentid: row.studentid,
+                    student_name: row.student_name, 
                     date_of_given_submitted: row.date_of_given_submitted,
                     submitted_description: row.submitted_description,
                     date_of_to_submit: row.date_of_to_submit,
