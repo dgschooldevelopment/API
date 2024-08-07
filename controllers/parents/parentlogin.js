@@ -67,9 +67,9 @@ require('dotenv').config(); // Load environment variables
 const JWT_SECRET = process.env.JWT_SECRET; // Correctly access JWT_SECRET from environment variables
 
 const parentlogin = async (req, res) => {
-    const { parent_id, password, college_code, fcm_token } = req.body;
+    const { parent_id, password,  fcm_token } = req.body;
 
-    if (!parent_id || !password ) {
+    if (!parent_id || !password) {
         return res.status(400).json({ error: 'Parent ID, password, and college code are required parameters' });
     }
 
@@ -86,10 +86,10 @@ const parentlogin = async (req, res) => {
                 c.college_code
             FROM Parents p
             JOIN ${process.env.DB_NAME}.College c ON p.collegeId = c.collegeID
-            WHERE p.parent_id = ? AND c.college_code = ?
+            WHERE p.parent_id = ? 
         `;
 
-        const [parentDetails] = await req.collegePool.query(parentQuery, [parent_id, college_code]);
+        const [parentDetails] = await req.collegePool.query(parentQuery, [parent_id]);
 
         if (parentDetails.length === 0) {
             return res.status(404).json({ error: 'Parent not found or invalid credentials' });
@@ -124,18 +124,11 @@ const parentlogin = async (req, res) => {
             parentname: parent.parentname,
             pmobile_no: parent.pmobile_no,
             profilephoto: base64ProfilePhoto,
-            address: parent.address
+            address: parent.address,
+            college_code:parent.college_code
         };
 
-        // Set JWT token in cookies
-        res.cookie('auth_token', token, {
-            httpOnly: true, // Helps prevent XSS attacks
-            secure: process.env.NODE_ENV === 'production', // Only send cookie over HTTPS in production
-            sameSite: 'Strict', // Helps prevent CSRF attacks
-            maxAge: 3600000 // 1 hour
-        });
-
-        return res.status(200).json({ success: true, message: 'Successfully logged in', data: parentData });
+        return res.status(200).json({ success: true, message: 'Successfully logged in', token, data: parentData });
     } catch (error) {
         console.error('Error executing query:', error);
         return res.status(500).json({ error: 'Internal server error' });
