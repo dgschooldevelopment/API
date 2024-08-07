@@ -287,7 +287,7 @@ const { parentstudentfee} = require('../controllers/parents/parentstudentfee');
 const { addfeedetails } = require('../controllers/addfeedetails');
 const { fetchNotices } = require('../controllers/parents/parentnotice');
 const { postnotice } = require('../controllers/notice');
-const { fetchfee } = require('../controllers/fetchfee');
+const { fetchFee } = require('../controllers/fetchfee');
 
 router.post('/check', checkCollege);
 
@@ -400,7 +400,7 @@ router.get('/parentstudentlist', validateCollegeCode, setupDatabaseConnection, p
 router.get('/parentstudentfee', validateCollegeCode, setupDatabaseConnection, parentstudentfee, closeDatabaseConnection);
 
 
-router.get('/fetchfee', validateCollegeCode, setupDatabaseConnection, fetchfee, closeDatabaseConnection);
+router.get('/fetchFee', validateCollegeCode, setupDatabaseConnection, fetchFee, closeDatabaseConnection);
 
 router.get('/notices', validateCollegeCode, setupDatabaseConnection, fetchNotices, closeDatabaseConnection);
 router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postnotice, closeDatabaseConnection)
@@ -418,4 +418,3 @@ router.post('/postnotices', validateCollegeCode, setupDatabaseConnection, postno
 
 
 module.exports = router;
-
