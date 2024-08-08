@@ -5,22 +5,24 @@ const checkIfHoliday = async (date, pool) => {
 };
 
 const createAttendanceTable = async (pool, tableName) => {
-    const year = tableName.split('_')[1];
-    const month = tableName.split('_')[2];
+    const [year, month] = tableName.split('_').slice(1);
     const daysInMonth = new Date(year, month, 0).getDate();
 
     const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
-        const day = i + 1; // Start from day 1
+        const day = i + 1;
         const date = new Date(year, month - 1, day);
-        if (date.getDay() !== 0) { // Exclude Sundays
-            return `\`${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}\` TINYINT DEFAULT NULL`;
-        }
-        return null;
-    }).filter(column => column !== null); // Remove null entries
+        const dayOfWeek = date.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
 
-    // Create the dynamic CREATE TABLE query for the attendance table
+        if (dayOfWeek !== 0) { // Skip Sundays
+            const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}`;
+            return `\`${formattedDate}\` TINYINT DEFAULT NULL`;
+        } else {
+            return null; // Skip Sundays
+        }
+    }).filter(Boolean); // Remove null entries
+
     const createAttendanceTableQuery = `
-        CREATE TABLE ${tableName} (
+        CREATE TABLE IF NOT EXISTS ${tableName} (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
             student_id VARCHAR(40) NOT NULL UNIQUE,
             ${dateColumns.join(', ')},
@@ -30,6 +32,7 @@ const createAttendanceTable = async (pool, tableName) => {
 
     await pool.query(createAttendanceTableQuery);
 };
+
 
 const insertAttendance = async (req, res) => {
     try {
@@ -48,15 +51,27 @@ const insertAttendance = async (req, res) => {
         const currentDate = new Date().toISOString().split('T')[0];
         const formattedDate = new Date(date).toISOString().split('T')[0];
 
-        // Prepare queries for batch execution
-        const insertOrUpdateAttendanceQueries = [];
-        const insertOrUpdateDailyTeacherQuery = `
-            INSERT INTO daily_teacher (date, teacher_id)
-            VALUES (?, ?)
-            ON DUPLICATE KEY UPDATE teacher_id = VALUES(teacher_id)
-        `;
+        const dateObj = new Date(date);
+        const year = dateObj.getFullYear();
+        const month = dateObj.getMonth() + 1; // Month is zero-indexed
+
+        const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
+
+        // Check if the table exists
+        const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
+
+        if (rows.length === 0) {
+            // Table does not exist, create it
+            await createAttendanceTable(req.collegePool, tableName);
+            console.log(`Created table ${tableName}`);
+        }
+
+        // Get existing columns in the table
+        const [columns] = await req.collegePool.query(`SHOW COLUMNS FROM ${tableName}`);
+        const columnNames = columns.map(col => col.Field);
 
         const skippedUpdates = []; // Array to store messages for skipped updates
+        const insertOrUpdateAttendanceQueries = [];
 
         for (const record of attendanceRecords) {
             const { student_id, status } = record;
@@ -65,63 +80,40 @@ const insertAttendance = async (req, res) => {
                 return res.status(400).json({ error: 'Missing required parameters in one or more records' });
             }
 
-            // Determine the attendance status value
             const attendanceStatus = status === 'present' ? 1 : 0;
 
-            // Extract year and month from the provided date
-            const dateObj = new Date(date);
-            const year = dateObj.getFullYear();
-            const month = dateObj.getMonth() + 1; // Month is zero-indexed
+            // Only proceed if the formatted date is a valid column in the table
+            if (columnNames.includes(formattedDate)) {
+                const [existingRows] = await req.collegePool.query(`SELECT * FROM ${tableName} WHERE student_id = ?`, [student_id]);
 
-            // Create a dynamic table name
-            const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
-
-            // Check if the table already exists
-            const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
-
-            if (rows.length === 0) {
-                // Table does not exist, create it
-                await createAttendanceTable(req.collegePool, tableName);
-                console.log(`Created table ${tableName}`);
-            }
-
-            // Check if the column for the provided date exists
-            const columnCheckQuery = `SHOW COLUMNS FROM ${tableName} LIKE ?`;
-            const [columns] = await req.collegePool.query(columnCheckQuery, [formattedDate]);
-
-            if (columns.length === 0) {
-                return res.status(400).json({ error: `Column for date ${formattedDate} does not exist in table ${tableName}` });
-            }
-
-            // Check if the row for the student already exists
-            const [existingRows] = await req.collegePool.query(`SELECT * FROM ${tableName} WHERE student_id = ?`, [student_id]);
-
-            if (existingRows.length > 0) {
-                // Update the existing row for the specific date if current value is null
-                const existingValue = existingRows[0][formattedDate];
-                if (existingValue === null) {
-                    const updateAttendanceQuery = `
-                        UPDATE ${tableName}
-                        SET \`${formattedDate}\` = ?
-                        WHERE student_id = ?
-                    `;
-                    insertOrUpdateAttendanceQueries.push(req.collegePool.format(updateAttendanceQuery, [attendanceStatus, student_id]));
+                if (existingRows.length > 0) {
+                    const existingValue = existingRows[0][formattedDate];
+                    if (existingValue === null) {
+                        const updateAttendanceQuery = `
+                            UPDATE ${tableName}
+                            SET \`${formattedDate}\` = ?
+                            WHERE student_id = ?
+                        `;
+                        insertOrUpdateAttendanceQueries.push(req.collegePool.format(updateAttendanceQuery, [attendanceStatus, student_id]));
+                    } else {
+                        skippedUpdates.push(`Skipped updating for student ${student_id} on ${formattedDate} as value exists: ${existingValue}`);
+                    }
                 } else {
-                    skippedUpdates.push(`Skipped updating for student ${student_id} on ${formattedDate} as value exists: ${existingValue}`);
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+                        const day = i + 1;
+                        const dateStr = `${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}`;
+                        return columnNames.includes(dateStr) && day === dateObj.getDate() ? attendanceStatus : null;
+                    }).filter((_, i) => columnNames.includes(`${year}-${month.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}`));
+
+                    const insertAttendanceQuery = `
+                        INSERT INTO ${tableName} (student_id, ${columnNames.slice(2).map(name => `\`${name}\``).join(', ')})
+                        VALUES (?, ${dateColumns.map(() => '?').join(', ')})
+                    `;
+                    insertOrUpdateAttendanceQueries.push(req.collegePool.format(insertAttendanceQuery, [student_id, ...dateColumns]));
                 }
             } else {
-                // Insert a new row with the attendance record
-                const daysInMonth = new Date(year, month, 0).getDate();
-                const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
-                    const day = i + 1;
-                    return day === dateObj.getDate() ? attendanceStatus : null;
-                });
-
-                const insertAttendanceQuery = `
-                    INSERT INTO ${tableName} (student_id, ${Array.from({ length: daysInMonth }, (_, i) => `\`${year}-${month.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}\``).join(', ')})
-                    VALUES (?, ${Array.from({ length: daysInMonth }, () => '?').join(', ')})
-                `;
-                insertOrUpdateAttendanceQueries.push(req.collegePool.format(insertAttendanceQuery, [student_id, ...dateColumns]));
+                skippedUpdates.push(`Skipped updating for student ${student_id} on ${formattedDate} as the column does not exist`);
             }
         }
 
@@ -130,14 +122,10 @@ const insertAttendance = async (req, res) => {
             await req.collegePool.query(query);
         }
 
-        // Prepare response
         const response = {
-            message: 'Attendance records inserted/updated successfully'
+            message: 'Attendance records inserted/updated successfully',
+            skippedUpdates,
         };
-
-        if (skippedUpdates.length > 0) {
-            response.skippedUpdates = skippedUpdates;
-        }
 
         return res.status(200).json(response);
     } catch (err) {
