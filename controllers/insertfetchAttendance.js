@@ -1,5 +1,3 @@
-const admin = require('../config/Firebase');
-
 const checkIfHoliday = async (date, pool) => {
     const query = 'SELECT description FROM holidays WHERE date = ?';
     const [rows] = await pool.query(query, [date]);
@@ -32,21 +30,33 @@ const createAttendanceTable = async (pool, tableName) => {
 
     await pool.query(createAttendanceTableQuery);
 };
+
 const insertAttendance = async (req, res) => {
     try {
-        const { college_code, teacher_id, date } = req.query;
+        const { college_code, teacher_id, date } = req.query; // Assuming teacher_id is passed as a query parameter
+
+        if (!teacher_id) {
+            return res.status(400).json({ error: 'Teacher ID is missing' });
+        }
 
         const attendanceRecords = req.body.records; // Expecting an array of attendance records
 
-        if (!teacher_id || !date || !attendanceRecords) {
-            return res.status(400).json({ error: 'Required data missing' });
+        if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
+            return res.status(400).json({ error: 'No attendance records provided' });
         }
 
-        const formattedDate = new Date(date).toISOString().split('T')[0];
         const currentDate = new Date().toISOString().split('T')[0];
+        const formattedDate = new Date(date).toISOString().split('T')[0];
 
+        // Prepare queries for batch execution
         const insertOrUpdateAttendanceQueries = [];
-        const notifications = []; // Store notifications to send later
+        const insertOrUpdateDailyTeacherQuery = `
+            INSERT INTO daily_teacher (date, teacher_id)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE teacher_id = VALUES(teacher_id)
+        `;
+
+        const skippedUpdates = []; // Array to store messages for skipped updates
 
         for (const record of attendanceRecords) {
             const { student_id, status } = record;
@@ -55,20 +65,39 @@ const insertAttendance = async (req, res) => {
                 return res.status(400).json({ error: 'Missing required parameters in one or more records' });
             }
 
+            // Determine the attendance status value
             const attendanceStatus = status === 'present' ? 1 : 0;
-            const year = new Date(date).getFullYear();
-            const month = new Date(date).getMonth() + 1;
+
+            // Extract year and month from the provided date
+            const dateObj = new Date(date);
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1; // Month is zero-indexed
+
+            // Create a dynamic table name
             const tableName = `attendance_${year}_${month.toString().padStart(2, '0')}`;
 
+            // Check if the table already exists
             const [rows] = await req.collegePool.query(`SHOW TABLES LIKE ?`, [tableName]);
 
             if (rows.length === 0) {
+                // Table does not exist, create it
                 await createAttendanceTable(req.collegePool, tableName);
+                console.log(`Created table ${tableName}`);
             }
 
+            // Check if the column for the provided date exists
+            const columnCheckQuery = `SHOW COLUMNS FROM ${tableName} LIKE ?`;
+            const [columns] = await req.collegePool.query(columnCheckQuery, [formattedDate]);
+
+            if (columns.length === 0) {
+                return res.status(400).json({ error: `Column for date ${formattedDate} does not exist in table ${tableName}` });
+            }
+
+            // Check if the row for the student already exists
             const [existingRows] = await req.collegePool.query(`SELECT * FROM ${tableName} WHERE student_id = ?`, [student_id]);
 
             if (existingRows.length > 0) {
+                // Update the existing row for the specific date if current value is null
                 const existingValue = existingRows[0][formattedDate];
                 if (existingValue === null) {
                     const updateAttendanceQuery = `
@@ -77,98 +106,44 @@ const insertAttendance = async (req, res) => {
                         WHERE student_id = ?
                     `;
                     insertOrUpdateAttendanceQueries.push(req.collegePool.format(updateAttendanceQuery, [attendanceStatus, student_id]));
-
-                    if (status === 'absent') {
-                        notifications.push(student_id);
-                    }
+                } else {
+                    skippedUpdates.push(`Skipped updating for student ${student_id} on ${formattedDate} as value exists: ${existingValue}`);
                 }
             } else {
+                // Insert a new row with the attendance record
                 const daysInMonth = new Date(year, month, 0).getDate();
-                const dateColumns = [];
-                const dateValues = [];
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const currentDate = new Date(year, month - 1, day);
-                    if (currentDate.getDay() !== 0) {
-                        const formattedDay = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                        dateColumns.push(`\`${formattedDay}\``);
-                        dateValues.push(formattedDay === formattedDate ? attendanceStatus : null);
-                    }
-                }
+                const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+                    return day === dateObj.getDate() ? attendanceStatus : null;
+                });
 
                 const insertAttendanceQuery = `
-                    INSERT INTO ${tableName} (student_id, ${dateColumns.join(', ')})
-                    VALUES (?, ${dateValues.map(() => '?').join(', ')})
+                    INSERT INTO ${tableName} (student_id, ${Array.from({ length: daysInMonth }, (_, i) => `\`${year}-${month.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}\``).join(', ')})
+                    VALUES (?, ${Array.from({ length: daysInMonth }, () => '?').join(', ')})
                 `;
-                insertOrUpdateAttendanceQueries.push(req.collegePool.format(insertAttendanceQuery, [student_id, ...dateValues]));
-
-                if (attendanceStatus === 0) {
-                    notifications.push(student_id);
-                }
+                insertOrUpdateAttendanceQueries.push(req.collegePool.format(insertAttendanceQuery, [student_id, ...dateColumns]));
             }
         }
 
-        await req.collegePool.getConnection(async (conn) => {
-            try {
-                await conn.beginTransaction();
-
-                for (const query of insertOrUpdateAttendanceQueries) {
-                    await conn.query(query);
-                }
-
-                await conn.commit();
-            } catch (err) {
-                await conn.rollback();
-                throw err;
-            } finally {
-                conn.release();
-            }
-        });
-
-        for (const studentId of notifications) {
-            const [parentTokens] = await req.collegePool.query(`
-                SELECT p.fcm_token
-                FROM Parents p
-                JOIN Student s ON p.parent_id = s.parent_id
-                WHERE s.studentid = ?
-            `, [studentId]);
-
-            for (const { fcm_token } of parentTokens) {
-                await sendNotificationToParent(`Your child with student ID: ${studentId} was marked absent on ${formattedDate}.`, fcm_token);
-            }
+        // Execute all attendance queries in a batch
+        for (const query of insertOrUpdateAttendanceQueries) {
+            await req.collegePool.query(query);
         }
 
-        return res.status(200).json({ message: 'Attendance records inserted/updated successfully and notifications sent' });
+        // Prepare response
+        const response = {
+            message: 'Attendance records inserted/updated successfully'
+        };
+
+        if (skippedUpdates.length > 0) {
+            response.skippedUpdates = skippedUpdates;
+        }
+
+        return res.status(200).json(response);
     } catch (err) {
         console.error('Error occurred:', err);
         return res.status(500).send('Internal server error');
     }
-};
-
-const sendNotificationToParent = async (message, fcmToken) => {
-    if (fcmToken === 'dummyFcmToken') {
-        console.log('Sending notification to dummy token');
-        return;
-    }
-
-    const messagePayload = {
-        notification: {
-            title: 'Attendance Notification',
-            body: message,
-        },
-        token: fcmToken,
-    };
-
-    try {
-        await admin.messaging().send(messagePayload);
-        console.log('Notification sent successfully');
-    } catch (error) {
-        console.error('Error sending notification:', error);
-    }
-};
-
-module.exports = {
-    insertAttendance,
 };
 
 
