@@ -6,6 +6,32 @@ const checkIfHoliday = async (date, pool) => {
     return rows.length > 0 ? rows[0].description : null;
 };
 
+const createAttendanceTable = async (pool, tableName) => {
+    const year = tableName.split('_')[1];
+    const month = tableName.split('_')[2];
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const dateColumns = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1; // Start from day 1
+        const date = new Date(year, month - 1, day);
+        if (date.getDay() !== 0) { // Exclude Sundays
+            return `\`${year}-${month.toString().padStart(2, '0')}-${(day < 10 ? '0' : '') + day}\` TINYINT DEFAULT NULL`;
+        }
+        return null;
+    }).filter(column => column !== null); // Remove null entries
+
+    // Create the dynamic CREATE TABLE query for the attendance table
+    const createAttendanceTableQuery = `
+        CREATE TABLE ${tableName} (
+            id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+            student_id VARCHAR(40) NOT NULL UNIQUE,
+            ${dateColumns.join(', ')},
+            FOREIGN KEY (student_id) REFERENCES Student(studentid)
+        )
+    `;
+
+    await pool.query(createAttendanceTableQuery);
+};
 const insertAttendance = async (req, res) => {
     try {
         const { college_code, teacher_id, date } = req.query;
@@ -144,6 +170,8 @@ const sendNotificationToParent = async (message, fcmToken) => {
 module.exports = {
     insertAttendance,
 };
+
+
 
 
 
